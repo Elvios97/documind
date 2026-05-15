@@ -1,0 +1,3 @@
+"""
+documind backend application package
+"""
