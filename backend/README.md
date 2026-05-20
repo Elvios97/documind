@@ -1,96 +1,55 @@
-# Backend README
+# Documind Backend
 
-## Übersicht
+Lokales FastAPI-Backend fuer PDF-Upload, PDF-Textextraktion, lokale Ollama-Fragen und ein lokales RAG-System mit ChromaDB.
 
-Dieses ist das FastAPI Backend für die documind PDF AI App.
+## Start
 
-## Virtuelle Umgebung erstellen
-
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
-
-# macOS / Linux
-python3 -m venv venv
-source venv/bin/activate
-```
-
-## Dependencies installieren
-
-```bash
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-## FastAPI starten
+Ohne Aktivieren der venv:
 
-```bash
-# Entwicklungsserver
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-
-# Produktivserver
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Die API ist dann verfügbar unter: http://127.0.0.1:8000
+## Ollama
 
-## API-Dokumentation
+Benoetigte lokale Modelle:
 
-- **Swagger UI**: http://127.0.0.1:8000/docs
-- **ReDoc**: http://127.0.0.1:8000/redoc
-
-## Verfügbare Endpunkte
-
-### Healthcheck
-- **GET** `/`
-  - Antwortet: `{"message": "PDF AI App Backend läuft"}`
-
-### PDF Upload
-- **POST** `/api/pdf/upload`
-  - Body: FormData mit `file` (PDF-Datei)
-  - Antwortet mit:
-    ```json
-    {
-      "status": "success",
-      "filename": "20240115_143022_example.pdf",
-      "original_filename": "example.pdf",
-      "content_type": "application/pdf",
-      "file_path": "/absolute/path/to/file.pdf",
-      "file_size": 12345,
-      "upload_timestamp": "2024-01-15T14:30:22.123456",
-      "message": "PDF erfolgreich hochgeladen"
-    }
-    ```
-
-## Projektstruktur
-
-```
-backend/
-├── app/
-│   ├── api/
-│   │   └── routes/
-│   │       └── pdf_routes.py      # PDF-Endpunkte
-│   ├── services/
-│   │   └── pdf_service.py         # PDF-Geschäftslogik
-│   ├── rag/                       # RAG (kommende Phase)
-│   ├── models/                    # Pydantic Modelle
-│   ├── core/
-│   │   └── config.py              # Konfiguration
-│   └── main.py                    # FastAPI App
-├── uploads/                       # hochgeladene PDFs
-└── requirements.txt               # Dependencies
+```powershell
+ollama pull llama3
+ollama pull nomic-embed-text
 ```
 
-## Nächste Schritte
+## Tests
 
-1. Text-Extraktion aus PDFs (PyMuPDF)
-2. Ollama Integration
-3. Embeddings generieren
-4. ChromaDB RAG implementieren
-5. React Frontend bauen
+```powershell
+.\.venv\Scripts\python.exe -m pytest
+```
 
-## Tipps für Entwicklung
+Bei Windows-Temp-Problemen:
 
-- `.env` Datei für sensible Daten erstellen (nicht committen!)
-- Uploads im `.gitignore` ausschließen
-- Bei Änderungen an dependencies: `pip freeze > requirements.txt`
+```powershell
+.\.venv\Scripts\python.exe -m pytest --basetemp .\test_tmp_codex -p no:cacheprovider
+```
+
+## Endpunkte
+
+- `GET /`: Healthcheck
+- `POST /api/pdf/upload`: PDF hochladen, speichern, Text extrahieren und lokal indexieren
+- `POST /ask`: Frage an den gespeicherten PDF-Text stellen
+- `POST /rag/ask`: Frage ueber lokale RAG-Suche stellen und Quellen erhalten
+
+## Lokale Daten
+
+- Hochgeladene PDFs: `backend/uploads/`
+- Extrahierte Dokumenttexte: `../local_data/documents/`
+- ChromaDB-Daten: `../local_data/chroma/`
+- Spaetere Chatdaten: `../local_data/chats/`
+
+Die Tests koennen den Dokumentenspeicher mit `DOCUMIND_DOCUMENTS_DIR` auf einen temporaeren Ordner umleiten. ChromaDB kann mit `DOCUMIND_CHROMA_DIR` auf einen anderen lokalen Ordner zeigen.

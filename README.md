@@ -1,172 +1,169 @@
-# 📄 documind - Lokale PDF AI App
+# Documind
 
-## 🎯 Projektidee
+Documind ist eine lokale Desktop-first App zur Analyse von PDFs mit lokaler KI. Das Projekt ist datenschutzfreundlich aufgebaut: PDFs, extrahierte Texte, Chunks, Embeddings, ChromaDB-Daten und spaetere Chatdaten bleiben lokal auf dem Rechner.
 
-**documind** ist eine lokale Desktop-Anwendung, mit der du:
-- 📤 PDFs hochladen kannst
-- 📝 Text aus PDFs extrahieren kannst
-- 💬 Mit deinen PDFs über eine lokale KI chatten kannst
-- 🔒 Alles lokal auf deinem PC ausführst (keine Cloud)
+Der aktuelle Stand enthaelt ein Python/FastAPI-Backend mit PDF-Upload, Textextraktion, lokaler JSON-Speicherung, lokaler Ollama-Anbindung und einem lokalen RAG-System mit ChromaDB.
 
-## 🚀 Ziel
+## Ziele
 
-Ein vollständig funktionierendes, benutzerfreundliches System zur intelligenten PDF-Analyse mit **lokalen**, open-source Modellen bauen - ideal für das Portfolio.
+- Lokale PDF-Analyse ohne Cloud
+- Keine externen KI-APIs
+- Keine Nutzerkonten
+- Keine Online-Speicherung
+- Lokales RAG mit Quellenangaben
+- Saubere Trennung von API, Services, Storage und Modellen
+- Portfolio-tauglicher Code mit Tests und Dokumentation
 
-## 🛠️ Geplanter Tech Stack
+## Aktuelle Features
 
-| Layer | Technologie | Grund |
-|-------|-------------|-------|
-| **Frontend** | React 18 + TypeScript | Modern, responsive UI |
-| **Desktop** | Tauri | Leicht, schnell, native Performance |
-| **Backend** | Python FastAPI | Schnell, typ-sicher, Data-Science-friendly |
-| **PDF-Verarbeitung** | PyMuPDF | Zuverlässig, schnell |
-| **Lokale KI** | Ollama | Einfach zu bedienen, viele Modelle |
-| **Embeddings** | Lokale Modelle | Datenschutz, keine API Kosten |
-| **Vector DB** | ChromaDB | Leicht, RAG-optimiert |
-| **Versionierung** | Git + GitHub | Standard |
+- PDF-Upload ueber FastAPI
+- Lokale Speicherung der PDF unter `backend/uploads/`
+- Textextraktion mit PyMuPDF
+- Lokale Speicherung des extrahierten Texts als JSON unter `local_data/documents/`
+- Automatische Indexierung nach erfolgreichem Upload
+- Chunking mit Seitenbezug
+- Lokale Embeddings ueber Ollama `nomic-embed-text`
+- Lokale ChromaDB unter `local_data/chroma/`
+- Einfache Frage zum gespeicherten PDF-Text ueber `POST /ask`
+- RAG-Fragen mit Quellen ueber `POST /rag/ask`
+- Gemockte Tests fuer Ollama und Vector Store
 
-## 📊 Aktueller Stand
+Noch nicht Teil des aktuellen Stands:
 
-### ✅ Phase 1 - ABGESCHLOSSEN
-- Projektstruktur
-- FastAPI Backend
-- PDF Upload Endpunkt
-- Dokumentation & Roadmap
+- Kein Frontend
+- Keine Tauri-Desktop-App
+- Keine OCR fuer gescannte PDFs
+- Keine Chat-History
 
-### 🔄 Phase 2-8 - GEPLANT
-Siehe [docs/roadmap.md](docs/roadmap.md)
+## Tech-Stack
 
-## 📁 Projektstruktur
+- Python
+- FastAPI
+- PyMuPDF
+- Ollama lokal
+- ChromaDB lokal
+- Pydantic
+- httpx
+- pytest
 
-```
+## Projektstruktur
+
+```text
 documind/
-├── backend/                    # FastAPI Python Backend
-│   ├── app/
-│   │   ├── api/routes/        # API Endpunkte
-│   │   ├── services/          # Business Logic
-│   │   ├── core/              # Konfiguration
-│   │   ├── models/            # Pydantic Modelle
-│   │   ├── rag/               # RAG Pipeline (später)
-│   │   └── main.py            # FastAPI App
-│   ├── uploads/               # hochgeladene PDFs
-│   └── requirements.txt
-│
-├── frontend/                  # React + Vite Frontend
-│   └── (wird in Phase 6 gestartet)
-│
-├── docs/                      # Dokumentation
-│   ├── architecture.md        # Systemarchitektur
-│   ├── roadmap.md             # Projekt Roadmap
-│   └── learning-notes.md      # Lernnotizen
-│
-├── .gitignore
-├── README.md                  # diese Datei
-└── LICENSE
+|-- backend/
+|   |-- api/
+|   |-- models/
+|   |-- services/
+|   |-- storage/
+|   |-- tests/
+|   |-- uploads/
+|   |-- main.py
+|   `-- requirements.txt
+|-- frontend/
+|-- local_data/
+|   |-- chroma/
+|   |-- documents/
+|   `-- chats/
+|-- docs/
+`-- README.md
 ```
 
-## ⚡ Quick Start
+## Lokale Installation
 
-### Backend starten
-
-```bash
-# 1. In backend Ordner gehen
+```powershell
 cd backend
-
-# 2. Virtuelle Umgebung erstellen (erste Mal)
-python -m venv venv
-venv\Scripts\activate  # Windows
-# or: source venv/bin/activate  # macOS/Linux
-
-# 3. Dependencies installieren
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-
-# 4. Server starten
-uvicorn app.main:app --reload
 ```
 
-Server läuft dann unter: **http://127.0.0.1:8000**
+Wenn PowerShell das Aktivieren blockiert, kann das venv-Python direkt genutzt werden:
 
-### API testen
-
-```bash
-# Healthcheck
-curl http://127.0.0.1:8000/
-
-# Swagger Dokumentation
-# Öffne im Browser: http://127.0.0.1:8000/docs
-
-# PDF Upload (mit curl)
-curl -X POST "http://127.0.0.1:8000/api/pdf/upload" \
-  -F "file=@deine_datei.pdf"
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-## 📚 API Endpunkte
+## Ollama vorbereiten
 
-### GET `/`
-Healthcheck - prüft ob Backend läuft
-```json
-{
-  "message": "PDF AI App Backend läuft"
-}
+Installiere Ollama fuer Windows:
+
+```text
+https://ollama.com/download/windows
 ```
 
-### POST `/api/pdf/upload`
-Lädt eine PDF-Datei hoch
-```bash
-curl -X POST "http://127.0.0.1:8000/api/pdf/upload" \
-  -F "file=@example.pdf"
+Lokale Modelle laden:
+
+```powershell
+ollama pull llama3
+ollama pull nomic-embed-text
 ```
 
-Response:
-```json
-{
-  "status": "success",
-  "filename": "20240115_143022_example.pdf",
-  "original_filename": "example.pdf",
-  "content_type": "application/pdf",
-  "file_path": "/absolute/path/to/file.pdf",
-  "file_size": 12345,
-  "upload_timestamp": "2024-01-15T14:30:22.123456",
-  "message": "PDF erfolgreich hochgeladen"
-}
+Documind nutzt standardmaessig `llama3` fuer Antworten und `nomic-embed-text` fuer Embeddings.
+
+```powershell
+$env:DOCUMIND_OLLAMA_MODEL="llama3"
+$env:DOCUMIND_EMBEDDING_MODEL="nomic-embed-text"
 ```
 
-## 📖 Dokumentation
+## Backend starten
 
-- **[Architektur](docs/architecture.md)**: Systemdesign & Datenfluss
-- **[Roadmap](docs/roadmap.md)**: Detaillierte Phasen & Timeline
-- **[Lernnotizen](docs/learning-notes.md)**: Tutorials & Konzepte
-- **[Backend README](backend/README.md)**: Backend Setup & Entwicklung
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
 
-## 🎓 Was ich mit diesem Projekt lerne
+Swagger UI:
 
-- ✅ FastAPI für moderne Python APIs
-- ✅ PDF-Verarbeitung mit PyMuPDF
-- ✅ Lokale KI Integration (Ollama)
-- ✅ Vector Embeddings & RAG
-- ✅ React + TypeScript UI
-- ✅ Tauri für Desktop Apps
-- ✅ Full-Stack Python/JavaScript Architektur
+```text
+http://127.0.0.1:8000/docs
+```
 
-## 🔄 Nächste Schritte
+## Beispiel: PDF hochladen
 
-1. **Phase 2**: PDF Text Extraktion implementieren
-2. **Phase 3**: Ollama Integration
-3. **Phase 4**: Embeddings & Chunking
-4. **Phase 5**: ChromaDB RAG
-5. **Phase 6**: React UI
-6. **Phase 7**: Tauri Desktop App
-7. **Phase 8**: Finalisierung & Demo
+```powershell
+curl.exe -X POST "http://127.0.0.1:8000/api/pdf/upload" `
+  -F "file=@C:\Pfad\zu\deiner-datei.pdf"
+```
 
-## 🤝 Beitragen
+Nach erfolgreichem Upload wird das Dokument automatisch lokal indexiert.
 
-Dieses Projekt ist aktuell in Entwicklung. Der Code ist strukturiert für einfache Erweiterungen in den kommenden Phasen.
+## Beispiel: RAG-Frage stellen
 
-## 📄 Lizenz
+```powershell
+curl.exe -X POST "http://127.0.0.1:8000/rag/ask" `
+  -H "Content-Type: application/json" `
+  -d "{\"document_id\":\"DEINE_DOCUMENT_ID\",\"question\":\"Welche Kernaussagen stehen im Dokument?\",\"top_k\":5}"
+```
 
-[Lizenz hinzufügen]
+Die Antwort enthaelt Text, Modellname und Quellen mit Datei, Seite, Chunk-ID und Textauszug.
 
----
+## Tests starten
 
-**Letzte Aktualisierung**: Januar 2024
-**Status**: Phase 1 ✅ - Projektstruktur & Backend Setup abgeschlossen
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m pytest
+```
+
+Falls Windows den Standard-Temp-Ordner blockiert:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest --basetemp .\test_tmp_codex -p no:cacheprovider
+```
+
+## Roadmap
+
+- Phase 1: Backend-Grundsystem, PDF-Upload, lokale Textextraktion
+- Phase 2: Lokale Ollama-Frage-Antwort-Funktion
+- Phase 3: Lokales RAG-System mit ChromaDB und Quellenangaben
+- Phase 4: React Desktop UI
+- Phase 5: Tauri Desktop App
+- Phase 6: Portfolio Polish
+
+## Dokumentation
+
+- [Projektplan](docs/project-plan.md)
+- [Architektur](docs/architecture.md)
+- [API](docs/api.md)
+- [Setup](docs/setup.md)
+- [RAG-Planung](docs/rag.md)
+- [Roadmap](docs/roadmap.md)

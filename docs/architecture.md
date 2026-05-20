@@ -1,98 +1,127 @@
-# documind - Architektur
+# Architektur
 
-## Systemübersicht
+Documind ist als lokale Desktop-first Anwendung geplant. Im MVP laufen Backend, KI-Modell, Dokumentdaten und Vektordaten auf dem eigenen Windows-PC.
 
-```
-┌─────────────────────────────────────────────────────┐
-│              React Desktop UI (Vite)                 │
-│          (später: Tauri Desktop App)                 │
-└────────────────────────┬────────────────────────────┘
-                         │ HTTP/REST API
-                         │
-┌────────────────────────▼────────────────────────────┐
-│         FastAPI Backend (Python)                     │
-│  - API Routes                                        │
-│  - PDF Upload Handler                               │
-│  - Service Layer                                     │
-└────────────────────────┬────────────────────────────┘
-                         │
-         ┌───────────────┼───────────────┐
-         │               │               │
-         ▼               ▼               ▼
-    ┌─────────┐   ┌──────────┐   ┌─────────────┐
-    │  PDF    │   │ Local    │   │   ChromaDB  │
-    │ Upload  │   │  Ollama  │   │ Vector DB   │
-    │ Storage │   │  (LLM)   │   │             │
-    └─────────┘   └──────────┘   └─────────────┘
-         │               │               │
-         └───────────────┼───────────────┘
-                         │
-    ┌────────────────────▼────────────────────┐
-    │       RAG Pipeline                       │
-    │  1. PDF Text Chunking                   │
-    │  2. Embedding Generation                │
-    │  3. Vector Storage in ChromaDB           │
-    │  4. Query Processing                    │
-    │  5. Context Retrieval                   │
-    │  6. LLM Response via Ollama             │
-    └─────────────────────────────────────────┘
+## Architekturübersicht
+
+```text
+React UI / später Tauri
+        |
+        | HTTP lokal
+        v
+FastAPI Backend
+        |
+        |-- PDF-Verarbeitung mit PyMuPDF
+        |-- Dokument-Speicherung als JSON
+        |-- Ollama Service für lokale LLM-Antworten
+        |-- RAG Service für Retrieval
+        |
+        v
+Lokales Dateisystem
+        |
+        |-- backend/uploads/
+        |-- local_data/documents/
+        |-- local_data/chroma/
+        `-- local_data/chats/ später
 ```
 
-## Datenfluss
+## Lokaler Datenfluss
 
-### Upload-Phase
-1. User lädt PDF in React UI hoch
-2. Frontend sendet POST zu `/api/pdf/upload`
-3. Backend speichert Datei in `backend/uploads/`
-4. Response mit Metadaten an Frontend
+1. Nutzer lädt eine PDF hoch.
+2. FastAPI speichert die PDF lokal.
+3. PyMuPDF extrahiert Text pro Seite.
+4. Dokumentdaten werden als JSON unter `local_data/documents/` gespeichert.
+5. In Phase 2 wird der begrenzte PDF-Text direkt an Ollama gesendet.
+6. In Phase 3 wird der Text in Chunks zerlegt und lokal indexiert.
+7. ChromaDB findet passende Chunks für eine Frage.
+8. Ollama beantwortet die Frage nur anhand des gefundenen Kontextes.
+9. Die API gibt Antwort und Quellen an das Frontend zurück.
 
-### Verarbeitung-Phase (geplant)
-1. Backend liest PDF mit PyMuPDF
-2. Text wird in Chunks aufgeteilt
-3. Chunks in Embeddings konvertiert (local model)
-4. Embeddings in ChromaDB gespeichert
+## Frontend
 
-### Chat-Phase (geplant)
-1. User Frage sendet an Backend
-2. Question Embedding wird generiert
-3. ChromaDB findet ähnliche Chunks (RAG)
-4. Kontext + Question zu Ollama LLM
-5. LLM generiert Antwort
-6. Response an Frontend
+Das Frontend wird in Phase 4 mit React, TypeScript und Vite gebaut. Es ist Desktop-first geplant und soll später in Tauri laufen.
 
-## Komponenten
+Geplante Bereiche:
 
-### Backend (`backend/app/`)
-- **core/config.py**: Zentrale Konfiguration
-- **api/routes/**: API Endpunkte
-- **services/**: Business-Logik
-- **models/**: Pydantic Validierungsmodelle
-- **rag/**: RAG-Pipeline (Phase 5)
+- Sidebar
+- PDF Upload
+- Dokumentenliste
+- Fragefeld
+- Antwortanzeige
+- Quellenanzeige
+- Lade- und Fehlerzustände
 
-### Frontend (`frontend/`)
-- React Komponenten
-- API Client
-- UI für Upload & Chat
+## Backend
 
-### Dokumentation (`docs/`)
-- architecture.md (diese Datei)
-- roadmap.md
-- learning-notes.md
+Das Backend ist in Schichten aufgebaut:
 
-## Deployment
+- `api/`: HTTP-Endpunkte
+- `services/`: Geschäftslogik
+- `storage/`: lokale Speicherung
+- `models/`: Pydantic-Modelle
+- `rag/`: spätere RAG-Komponenten
+- `tests/`: automatisierte Tests
 
-### Entwicklung
-- Backend: `uvicorn app.main:app --reload`
-- Frontend: `npm run dev`
+Diese Trennung hält API, Logik, Speicherung und Datenmodelle verständlich getrennt.
 
-### Produktion (später)
-- Backend: Containerized FastAPI mit Gunicorn
-- Frontend: Tauri Desktop App
-- Optional: Docker Compose für Orchestration
+## PDF-Verarbeitung
 
-## Lokale KI Integration
+PyMuPDF extrahiert:
 
-- **Ollama**: Lokale LLM ausführen
-- **Embeddings**: Lokale Modelle (z.B. nomic-embed-text)
-- **ChromaDB**: Lokale Vector Database
-- **Vorteil**: Datenschutz, keine API-Abhängigkeit
+- Seitenanzahl
+- Text pro Seite
+- vollständigen Dokumenttext
+
+Fehlerfälle:
+
+- keine Datei
+- falscher Dateityp
+- leere Datei
+- ungültige PDF
+- PDF ohne extrahierbaren Text
+
+## Ollama
+
+Ollama läuft lokal unter `http://127.0.0.1:11434`. Das Modell ist konfigurierbar, standardmäßig wird `llama3` verwendet.
+
+Wichtig:
+
+- keine externen KI-APIs
+- keine Cloud
+- Tests mocken Ollama-Aufrufe
+- Fehler werden verständlich an die API zurückgegeben
+
+## RAG
+
+Phase 3 ersetzt den Volltext-Kontext durch Retrieval:
+
+- Text wird in Chunks zerlegt.
+- Chunks behalten Seiteninformationen.
+- Embeddings werden lokal erzeugt.
+- ChromaDB speichert Vektoren lokal.
+- Top-K relevante Chunks werden gefunden.
+- Ollama erhält nur diese Chunks als Kontext.
+- Antworten enthalten Quellenangaben.
+
+## ChromaDB
+
+ChromaDB wird lokal unter `local_data/chroma/` gespeichert. Dieser Ordner gehört nicht in Git. ChromaDB dient nur als lokale Vektordatenbank für die eigenen Dokumente.
+
+## Lokale Speicherung
+
+| Datenart | Ort |
+| --- | --- |
+| hochgeladene PDFs | `backend/uploads/` |
+| extrahierte Dokumenttexte | `local_data/documents/` |
+| Vektordaten | `local_data/chroma/` |
+| spätere Chatdaten | `local_data/chats/` |
+
+## Warum keine Cloud?
+
+Documind ist bewusst lokal gebaut:
+
+- PDFs können private Inhalte enthalten.
+- Lokale KI schützt Daten besser.
+- Das Projekt zeigt Datenschutzbewusstsein.
+- Keine laufenden API-Kosten.
+- Keine Abhängigkeit von fremden Servern.

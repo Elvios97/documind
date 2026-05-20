@@ -1,125 +1,130 @@
-# documind - Roadmap
+# Roadmap
 
-## Phase 1: Projektstruktur + PDF Upload ✅ AKTUELL
-- [x] Projektstruktur aufsetzen
-- [x] FastAPI Backend grundgerüst
-- [x] Healthcheck Endpunkt
-- [x] PDF Upload Endpunkt
-- [x] PDF Service (Geschäftslogik)
-- [x] Requirements & Dokumentation
-- [x] Git initialisierung
+Statuswerte:
 
-**Dauer**: 1-2 Tage
-**Abhängigkeiten**: Keine
+- geplant: noch nicht begonnen
+- in Arbeit: wird aktiv umgesetzt
+- erledigt: umgesetzt und dokumentiert
+- später: bewusst nach dem MVP
 
----
+## Phasenplan
 
-## Phase 2: PDF Text Extraktion
-- [ ] PyMuPDF Integration
-- [ ] PDF Read Endpunkt
-- [ ] Text Extraction Service
-- [ ] Fehlerbehandlung für beschädigte PDFs
-- [ ] Tests für Extraktion
-- [ ] Dokumentation
+| Phase | Status | Ziel |
+| --- | --- | --- |
+| Phase 1: Backend-Grundsystem | erledigt | PDF Upload und lokale Text-Extraktion |
+| Phase 2: Lokale Ollama-Integration | erledigt | Einfache Frage-Antwort-Funktion über PDF-Text |
+| Phase 3: Lokales RAG-System | erledigt | Relevante Textstellen suchen und als Kontext nutzen |
+| Phase 4: React Desktop UI | geplant | Desktop-first Oberfläche bauen |
+| Phase 5: Tauri Desktop App | später | React UI als echte Desktop-App vorbereiten |
+| Phase 6: Portfolio Polish | in Arbeit | Dokumentation, Tests und Präsentation schärfen |
 
-**Dauer**: 2-3 Tage
-**Abhängigkeiten**: Phase 1
+## Phase 1: Backend-Grundsystem
 
----
+Status: erledigt
 
-## Phase 3: Ollama Integration (Lokale KI)
-- [ ] Ollama Installation & Setup Doku
-- [ ] Ollama API Client
-- [ ] LLM Query Endpunkt
-- [ ] Prompt Engineering Grundlagen
-- [ ] Response Streaming
-- [ ] Tests
+- FastAPI Backend
+- Healthcheck
+- PDF Upload Endpoint
+- lokale Speicherung im `backend/uploads/` Ordner
+- PyMuPDF für Textextraktion
+- Text pro Seite extrahieren
+- Seitenanzahl erkennen
+- Dokument-ID erzeugen
+- Dokumentdaten lokal als JSON speichern
+- Fehlerbehandlung für falschen Dateityp, leere PDF und kaputte PDF
+- pytest Tests für Upload, Text-Extraktion und zentrale Fehlerfälle
 
-**Dauer**: 2-3 Tage
-**Abhängigkeiten**: Phase 2
+## Phase 2: Lokale Ollama-Integration
 
----
+Status: erledigt
 
-## Phase 4: Chunking + Embeddings
-- [ ] Text Chunking Logik
-- [ ] Embedding Model Integration
-- [ ] Embedding Service
-- [ ] Batch Processing für große PDFs
-- [ ] Performance Optimierung
-- [ ] Tests
+- Ollama Service
+- lokales Modell über `DOCUMIND_OLLAMA_MODEL` konfigurierbar
+- Prompt Service
+- vorhandener `POST /ask` Endpoint
+- Antwort nur anhand des PDF-Kontexts
+- Schutz gegen erfundene Antworten durch klare Prompt-Regeln
+- Fehlerbehandlung, wenn Ollama nicht läuft
+- Fehlerbehandlung, wenn Modell fehlt
+- Tests mit Mock für Ollama
 
-**Dauer**: 3-4 Tage
-**Abhängigkeiten**: Phase 3
+## Phase 3: Lokales RAG-System
 
----
+Status: erledigt
 
-## Phase 5: ChromaDB + RAG
-- [ ] ChromaDB Installation
-- [ ] Vector Store Integration
-- [ ] RAG Pipeline Implementation
-- [ ] Context Retrieval Logik
-- [ ] Relevance Scoring
-- [ ] Tests & Evaluation
+- Chunking Service
+- Chunk-Größe konfigurierbar
+- Chunk Overlap
+- Seitenzahlen behalten
+- lokale Embeddings
+- ChromaDB lokal unter `local_data/chroma/`
+- Vector Store Service
+- RAG Service
+- vorhandener `POST /rag/ask` Endpoint
+- Quellenangaben mit Datei, Seite und Chunk
+- Top-K Suche
+- Tests für Chunking, Retrieval, RAG-Service und Fehlerfälle
 
-**Dauer**: 3-4 Tage
-**Abhängigkeiten**: Phase 4
+## Phase 4: React Desktop UI
 
----
+Status: geplant
 
-## Phase 6: React UI
-- [ ] React 18 + TypeScript Projekt
-- [ ] Vite Setup
-- [ ] PDF Upload Component
-- [ ] Chat Interface
-- [ ] API Client Integration
-- [ ] UI/UX Polish
-- [ ] Responsive Design
+- React + TypeScript + Vite
+- Desktop-first UI
+- Sidebar
+- PDF Upload
+- Dokumentenliste
+- Fragefeld
+- Antwortanzeige
+- Quellenanzeige
+- Ladezustände
+- Fehlermeldungen
+- API Client für FastAPI Backend
+- einfache UI Tests mit Vitest optional
 
-**Dauer**: 4-5 Tage
-**Abhängigkeiten**: Phase 5
+## Phase 5: Tauri Desktop App
 
----
+Status: später
 
-## Phase 7: Tauri Desktop App
-- [ ] Tauri Setup
-- [ ] Backend Integration in App
-- [ ] Building & Packaging
-- [ ] Auto-Update Logik
-- [ ] Installer für Windows/macOS/Linux
+- Tauri einrichten
+- Windows als Hauptziel
+- Backend und Frontend lokal betreiben
+- Entwicklungsstart dokumentieren
+- Build-Prozess dokumentieren
+- Sicherheitskonfiguration prüfen
+- keine komplizierte Auto-Start-Logik, solange nicht stabil
 
-**Dauer**: 2-3 Tage
-**Abhängigkeiten**: Phase 6
+## Phase 6: Portfolio Polish
 
----
+Status: in Arbeit
 
-## Phase 8: Portfolio Demo & Polish
-- [ ] Demo Scenario erstellen
-- [ ] Performance Tuning
-- [ ] Error Messages verbessern
-- [ ] Doku finalisieren
-- [ ] GitHub README
-- [ ] Demo Video erstellen (optional)
-- [ ] Release Vorbereitung
+- professionelle README
+- Architektur-Dokumentation
+- API-Dokumentation
+- RAG-Dokumentation
+- Setup-Anleitung
+- Tests dokumentieren
+- Roadmap aktualisieren
+- Screenshots-Platzhalter
+- Datenschutz-Hinweis
+- klare Projektbeschreibung
+- gute Git-Struktur
+- `.gitignore`, `requirements.txt` und spätere `package.json` Scripts prüfen
 
-**Dauer**: 2-3 Tage
-**Abhängigkeiten**: Phase 7
+## Optionale Features nach dem MVP
 
----
+Status: später
 
-## Gesamtgeschätzter Zeitaufwand
-
-- **Mindestens**: 20-25 Tage (wenn alles glatt läuft)
-- **Realistisch**: 30-40 Tage (mit Testing, Debugging, Iteration)
-- **Mit Pausen**: 6-8 Wochen
-
-## Priorität & MVP
-
-### MVP (Minimum Viable Product)
-- Phase 1-5: Funktionierendes RAG System über CLI
-- Kann über curl getestet werden
-
-### Core Features
-- Phase 1-6: Voll funktionale Desktop App
-
-### Polish & Extras
-- Phase 7-8: Production-ready Anwendung
+- mehrere PDFs gleichzeitig
+- Chat History lokal speichern
+- Dokumentenordner analysieren
+- Zusammenfassungen
+- Export von Antworten
+- Modellwechsel in der UI
+- Quellen anklickbar machen
+- PDF-Vorschau
+- Dark Mode
+- lokale Profile
+- Mobile/Tablet optional
+- bessere RAG-Einstellungen
+- Vergleich mehrerer lokaler Modelle

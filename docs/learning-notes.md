@@ -1,238 +1,122 @@
-# documind - Lernnotizen
+# Learning Notes
+
+Diese Datei sammelt kurze Lernnotizen zu den wichtigsten Technologien in Documind.
 
 ## FastAPI
 
-### Was ist FastAPI?
-- Modernes Python Web Framework für APIs
-- Schnell, einfach, starke Typisierung
-- Built-in automatische Dokumentation (Swagger/ReDoc)
-- Basiert auf Starlette & Pydantic
+FastAPI ist ein Python-Framework für APIs. Es passt gut zu Documind, weil Requests und Responses mit Type Hints und Pydantic-Modellen klar beschrieben werden können.
 
-### Key Concepts
-- **Router**: Gruppieren zusammenhängender Endpunkte
-- **Middleware**: Verarbeitet jeden Request/Response
-- **Dependency Injection**: Automatische Bereitstellung von Abhängigkeiten
-- **Pydantic Models**: Validierung & Serialisierung
+Wichtige Konzepte:
 
-### Tipps
-- `--reload` Flag aktiviert Auto-Reload bei Dateiänderungen
-- Automatische OpenAPI Dokumentation unter `/docs`
-- Async/Await für I/O-Operationen nutzen
+- `FastAPI()` erstellt die App.
+- `APIRouter` gruppiert Endpunkte.
+- Pydantic validiert Request- und Response-Daten.
+- Swagger UI ist lokal unter `/docs` erreichbar.
+- Async-Funktionen sind sinnvoll für Datei- und HTTP-Arbeit.
 
----
+## PyMuPDF
 
-## PDF-Verarbeitung
+PyMuPDF wird über `fitz` importiert und liest PDF-Dateien.
 
-### PyMuPDF (fitz)
-```python
-import fitz  # PyMuPDF
+Documind nutzt PyMuPDF für:
 
-# PDF öffnen
-pdf = fitz.open("document.pdf")
+- Seitenanzahl
+- Text pro Seite
+- vollständigen Dokumenttext
 
-# Seite extrahieren
-page = pdf[0]
+Grenzen:
 
-# Text extrahieren
-text = page.get_text()
+- Gescannte PDFs enthalten oft keinen normalen Text.
+- Dafür wäre später OCR nötig.
+- Manche PDFs haben eine schwierige Text-Reihenfolge.
 
-# Bilder extrahieren
-images = page.get_images()
-```
+## Ollama
 
-### Häufige Herausforderungen
-- Gescannte PDFs (benötigen OCR)
-- Verschiedene Encodings
-- Große Dateien (memory-effizient verarbeiten)
-- DRM-geschützte Dokumente
+Ollama führt Sprachmodelle lokal aus. Documind nutzt Ollama, damit keine PDF-Inhalte an externe KI-Dienste gesendet werden.
 
----
+Wichtig:
 
-## Ollama (Lokale KI)
+- Standardadresse: `http://127.0.0.1:11434`
+- Modell laden: `ollama pull llama3`
+- Antwort-Endpunkt: `/api/generate`
+- Tests sollten Ollama mocken
 
-### Was ist Ollama?
-- Tool zum lokalen Ausführen von LLMs
-- Keine Internetverbindung nötig
-- Privacy-fokussiert
-- Unterstützt verschiedene Modelle (Llama2, Mistral, etc.)
+## RAG
 
-### Installation
-```bash
-# Windows: Download von ollama.ai
-# macOS: brew install ollama
-# Linux: curl https://ollama.ai/install.sh | sh
-```
+RAG bedeutet Retrieval Augmented Generation. Das System sucht passende Textstellen und gibt nur diese als Kontext an das Modell.
 
-### Modelle laden
-```bash
-ollama pull llama2
-ollama pull mistral
-ollama pull nomic-embed-text
-```
+In Documind:
 
-### API Nutzung
-```python
-import requests
-
-response = requests.post('http://localhost:11434/api/generate',
-    json={
-        "model": "llama2",
-        "prompt": "Why is the sky blue?",
-        "stream": False
-    }
-)
-```
-
----
-
-## Embeddings
-
-### Was sind Embeddings?
-- Vektorielle Darstellung von Text
-- Semantisch ähnliche Texte → ähnliche Vektoren
-- Ermöglichen Ähnlichkeitssuche
-
-### Embedding Modelle
-- `nomic-embed-text`: Klein, schnell, lokal
-- `all-MiniLM-L6-v2`: ONNX Format
-- OpenAI's Modelle: Cloud, teuer
-
-### Verwendung
-```python
-from ollama import Ollama
-
-client = Ollama(model="nomic-embed-text")
-embedding = client.embed("Hello world")
-```
-
----
+1. PDF-Text extrahieren.
+2. Text in Chunks teilen.
+3. Chunks in Embeddings umwandeln.
+4. Embeddings in ChromaDB speichern.
+5. Bei Fragen relevante Chunks suchen.
+6. Ollama mit gefundenem Kontext antworten lassen.
 
 ## ChromaDB
 
-### Was ist ChromaDB?
-- Lokale Vector Database
-- Speichert & sucht Embeddings
-- Einfache REST API
-- Ideal für RAG Systeme
+ChromaDB ist eine lokale Vektordatenbank. Sie speichert Embeddings und Metadaten.
 
-### Installation
-```bash
-pip install chromadb
-```
+Für Documind wichtig:
 
-### Grundlagen
-```python
-import chromadb
+- Speicherung lokal unter `local_data/chroma/`
+- Suche nach ähnlichen Textstellen
+- Metadaten für Quellenangaben
+- nicht in Git committen
 
-# Client erstellen
-client = chromadb.Client()
+## Embeddings
 
-# Collection erstellen
-collection = client.create_collection("my_docs")
+Embeddings sind Zahlenvektoren für Text. Ähnliche Texte haben ähnliche Vektoren.
 
-# Dokumente hinzufügen
-collection.add(
-    documents=["This is document 1"],
-    embeddings=[[1.1, 2.3]],  # Embeddings
-    ids=["id1"]
-)
+Documind braucht Embeddings, um passende PDF-Abschnitte zu einer Frage zu finden.
 
-# Suche
-results = collection.query(
-    query_embeddings=[[1.1, 2.3]],
-    n_results=3
-)
-```
+Wichtig:
 
----
+- lokal erzeugen
+- nicht über externe APIs
+- Modellwahl dokumentieren
+- Embedding Service testbar halten
 
-## RAG (Retrieval Augmented Generation)
+## Testing
 
-### Konzept
-1. **Retrieval**: Relevante Dokumente finden (Vector Similarity Search)
-2. **Augmentation**: Kontext zu LLM hinzufügen
-3. **Generation**: LLM generiert Antwort basierend auf Kontext
+Tests sind wichtig für Portfolio-Qualität und spätere Änderungen.
 
-### Workflow
-```
-Benutzer Frage
-    ↓
-Embedding generieren
-    ↓
-In ChromaDB suchen
-    ↓
-Top K Chunks abrufen
-    ↓
-Prompt + Kontext zusammenstellen
-    ↓
-Zu Ollama senden
-    ↓
-Antwort erhalten & zurückgeben
-```
+Aktuelle Testarten:
 
-### Vorteile
-- Bessere Antworten (Domain-spezifisch)
-- Halluzinationen reduzieren
-- Referenzen auf Quelle möglich
+- API Tests mit FastAPI TestClient
+- Service Tests für Prompt und Ollama
+- Upload- und Extraktions-Tests
+- Mocks für externe lokale Prozesse wie Ollama
 
----
+Gute Tests prüfen:
 
-## React
+- normale Erfolgspfade
+- klare Fehlerfälle
+- lokale Speicherung
+- keine echten KI-Aufrufe in Unit Tests
 
-### Was ist React?
-- JavaScript UI Library
-- Komponentenbasiert
-- Virtual DOM für Performance
-- Große Ökosystem
+## React später
 
-### Basics
-- **JSX**: HTML-ähnliche Syntax in JavaScript
-- **Components**: Wiederverwendbare UI-Einheiten
-- **State**: Komponenten-Daten
-- **Props**: Daten zwischen Komponenten
+React wird für die Desktop-first Oberfläche genutzt.
 
-### TypeScript mit React
-```typescript
-interface Props {
-  title: string;
-  count?: number;
-}
+Geplante UI-Bereiche:
 
-const MyComponent: React.FC<Props> = ({ title, count = 0 }) => {
-  return <h1>{title} - {count}</h1>;
-};
-```
+- Sidebar
+- Dokumentenliste
+- Upload
+- Fragefeld
+- Antwortbereich
+- Quellenbereich
 
----
+TypeScript hilft, API-Daten klar zu typisieren.
 
-## Tauri
+## Tauri später
 
-### Was ist Tauri?
-- Desktop App Framework (Alternative zu Electron)
-- Kleiner, schneller, sicherer
-- Kombiniert Rust Backend + Web Frontend
-- Native Systemzugriff
+Tauri verpackt das React Frontend als Desktop-App. Für Documind ist Tauri interessant, weil es schlanker als Electron ist und gut zu einer lokalen App passt.
 
-### Vorteile
-- ~50 MB vs. ~150 MB (vs Electron)
-- Bessere Performance
-- Rust Security Modell
+Offen bleibt später:
 
-### Grundstruktur
-```
-- src-tauri/: Rust Backend
-- src/: React Frontend
-- tauri.conf.json: Config
-```
-
----
-
-## Best Practices für dieses Projekt
-
-1. **Modularität**: Kleine, fokussierte Module
-2. **Fehlerbehandlung**: Explizite Error Messages
-3. **Testing**: Unit Tests für kritische Logik
-4. **Dokumentation**: Code Comments & READMEs
-5. **Performance**: Async für I/O, Caching wo sinnvoll
-6. **Security**: Input Validation, Safe File Handling
-7. **Versionierung**: Aussagekräftige Git Commits
+- Wie Backend und Frontend gemeinsam gestartet werden
+- Wie Builds für Windows erzeugt werden
+- Welche Sicherheitsregeln in Tauri nötig sind

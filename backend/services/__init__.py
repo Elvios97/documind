@@ -1,0 +1,1 @@
+"""Business-Logik fuer Documind."""
