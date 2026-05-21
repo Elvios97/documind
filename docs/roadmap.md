@@ -14,7 +14,7 @@ Statuswerte:
 | Phase 1: Backend-Grundsystem | erledigt | PDF Upload und lokale Text-Extraktion |
 | Phase 2: Lokale Ollama-Integration | erledigt | Einfache Frage-Antwort-Funktion über PDF-Text |
 | Phase 3: Lokales RAG-System | erledigt | Relevante Textstellen suchen und als Kontext nutzen |
-| Phase 4: React Desktop UI | geplant | Desktop-first Oberfläche bauen |
+| Phase 4: React Desktop UI | in Arbeit | Desktop-first Oberfläche bauen |
 | Phase 5: Tauri Desktop App | später | React UI als echte Desktop-App vorbereiten |
 | Phase 6: Portfolio Polish | in Arbeit | Dokumentation, Tests und Präsentation schärfen |
 
@@ -67,7 +67,7 @@ Status: erledigt
 
 ## Phase 4: React Desktop UI
 
-Status: geplant
+Status: in Arbeit
 
 - React + TypeScript + Vite
 - Desktop-first UI

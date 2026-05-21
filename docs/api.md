@@ -13,9 +13,9 @@ http://127.0.0.1:8000
 | `GET /` | vorhanden | Healthcheck |
 | `POST /api/pdf/upload` | vorhanden | aktueller PDF Upload |
 | `POST /documents/upload` | geplant | zukünftiger einheitlicher Upload Endpoint |
-| `GET /documents` | geplant | Dokumentenliste |
-| `GET /documents/{document_id}` | geplant | Dokumentdetails |
-| `DELETE /documents/{document_id}` | geplant | Dokument lokal löschen |
+| `GET /documents` | vorhanden | Dokumentenliste |
+| `GET /documents/{document_id}` | vorhanden | Dokumentdetails |
+| `DELETE /documents/{document_id}` | vorhanden | Dokument lokal löschen |
 | `POST /ask` | vorhanden | einfache Frage über gespeicherten PDF-Text |
 | `POST /rag/ask` | vorhanden | Frage über lokales RAG-System |
 
@@ -91,11 +91,11 @@ Geplante Response:
 
 ## GET `/documents`
 
-Status: geplant
+Status: vorhanden
 
 Liefert lokal gespeicherte Dokumente für die UI.
 
-Geplante Response:
+Response:
 
 ```json
 [
@@ -110,11 +110,11 @@ Geplante Response:
 
 ## GET `/documents/{document_id}`
 
-Status: geplant
+Status: vorhanden
 
 Liefert Details zu einem lokal gespeicherten Dokument.
 
-Geplante Response:
+Response:
 
 ```json
 {
@@ -137,11 +137,11 @@ Fehlerfälle:
 
 ## DELETE `/documents/{document_id}`
 
-Status: geplant
+Status: vorhanden
 
-Löscht ein Dokument inklusive lokaler PDF, JSON-Daten und späterer Vektordaten.
+Löscht ein Dokument inklusive lokaler PDF, JSON-Daten und Vektordaten.
 
-Geplante Response:
+Response:
 
 ```json
 {

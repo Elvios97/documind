@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import re
 
-from models.document import StoredDocument
+from models.document import DocumentDetail, DocumentSummary, StoredDocument
 from models.errors import AppError
 from models.pdf import PDFPageText, PDFUploadResponse
 
@@ -64,6 +64,46 @@ def load_document_text(document_id: str) -> StoredDocument:
         raise
     except Exception as exc:
         raise AppError(500, f"Dokumentdaten konnten nicht gelesen werden: {exc}") from exc
+
+
+def list_documents() -> list[DocumentSummary]:
+    """Listet gespeicherte Dokumente fuer die UI."""
+    documents_dir = get_documents_dir()
+    if not documents_dir.exists():
+        return []
+
+    documents: list[DocumentSummary] = []
+    for path in documents_dir.glob("*.json"):
+        try:
+            with path.open("r", encoding="utf-8") as file:
+                data = json.load(file)
+            document = StoredDocument.model_validate(data)
+        except Exception:
+            continue
+
+        documents.append(
+            DocumentSummary(
+                document_id=document.document_id,
+                filename=document.file_name,
+                page_count=document.page_count,
+                created_at=document.created_at,
+            )
+        )
+
+    return sorted(documents, key=lambda document: document.created_at, reverse=True)
+
+
+def get_document_detail(document_id: str) -> DocumentDetail:
+    """Liefert Detaildaten zu einem gespeicherten Dokument."""
+    document = load_document_text(document_id)
+    return DocumentDetail(
+        document_id=document.document_id,
+        filename=document.file_name,
+        page_count=document.page_count,
+        created_at=document.created_at,
+        pages=document.pages,
+        full_text=document.full_text,
+    )
 
 
 def delete_document_text(document_id: str) -> None:

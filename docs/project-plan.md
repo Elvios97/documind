@@ -49,7 +49,7 @@ Documind soll zeigen, wie eine datenschutzfreundliche PDF-Analyse mit lokalem Ba
 | 1 | Backend-Grundsystem | erledigt | PDF Upload und lokale Textextraktion |
 | 2 | Lokale Ollama-Integration | erledigt | Fragen zu extrahiertem PDF-Text |
 | 3 | Lokales RAG-System | erledigt | Relevante Textstellen statt Volltext nutzen |
-| 4 | React Desktop UI | geplant | Bedienbare Desktop-first Oberfläche |
+| 4 | React Desktop UI | in Arbeit | Bedienbare Desktop-first Oberfläche |
 | 5 | Tauri Desktop App | später | React UI als Desktop-App verpacken |
 | 6 | Portfolio Polish | fortlaufend | GitHub- und Bewerbungsqualität erreichen |
 

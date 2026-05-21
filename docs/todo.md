@@ -2,14 +2,13 @@
 
 ## Aktuelle Priorität
 
-Phase 3 ist funktional abgeschlossen. Nächster Fokus: lokalen End-to-End-Test mit PDF Upload und `/rag/ask` durchführen.
+Phase 4-Grundfunktion ist getestet. Dokumentliste, Details und lokales Löschen sind angebunden.
 
 ## Nächster sinnvoller Schritt
 
-1. Backend lokal starten.
-2. PDF hochladen und automatische Indexierung prüfen.
-3. `/rag/ask` mit echter Frage testen.
-4. Danach Phase-3-Stand committen oder hochladen.
+1. Frontend einmal komplett testen: Reload, Upload, Frage, Quellen, Löschen.
+2. UI bei Bedarf glätten.
+3. Danach Phase-4-Stand committen oder hochladen.
 
 ## Phase 1: Backend-Grundsystem
 
@@ -67,17 +66,24 @@ Phase 3 ist funktional abgeschlossen. Nächster Fokus: lokalen End-to-End-Test m
 
 ## Phase 4: React Desktop UI
 
-- [ ] Vite React TypeScript Projekt einrichten
-- [ ] API Client für Backend bauen
-- [ ] Desktop-first Layout planen
-- [ ] Sidebar bauen
-- [ ] PDF Upload Komponente bauen
-- [ ] Dokumentenliste bauen
-- [ ] Fragefeld bauen
-- [ ] Antwortanzeige bauen
-- [ ] Quellenanzeige bauen
-- [ ] Ladezustände ergänzen
-- [ ] Fehlermeldungen ergänzen
+- [x] Vite React TypeScript Projekt einrichten
+- [x] API Client für Backend bauen
+- [x] Desktop-first Layout planen
+- [x] Sidebar bauen
+- [x] PDF Upload Komponente bauen
+- [x] Dokumentenliste bauen
+- [x] Persistente Dokumentenliste aus Backend laden
+- [x] Dokumentdetails Endpoint bauen
+- [x] Dokument lokal löschen Endpoint bauen
+- [x] Dokument lokal aus UI löschen
+- [x] Fragefeld bauen
+- [x] Antwortanzeige bauen
+- [x] Quellenanzeige bauen
+- [x] Ladezustände ergänzen
+- [x] Fehlermeldungen ergänzen
+- [x] Browser-End-to-End-Test durchführen
+- [x] UI nach echtem Test nachschärfen
+- [x] Backend-Erreichbarkeitsanzeige ergänzen
 
 ## Phase 5: Tauri Desktop App
 

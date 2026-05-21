@@ -126,16 +126,20 @@ curl.exe -X POST "http://127.0.0.1:8000/ask" `
   -d "{\"document_id\":\"DEINE_DOCUMENT_ID\",\"question\":\"Worum geht es in diesem Dokument?\"}"
 ```
 
-## Frontend später starten
+## Frontend starten
 
-Das Frontend ist für Phase 4 geplant.
-
-Geplanter Ablauf:
+Das Frontend liegt unter `frontend/`. Die Dokumentenliste wird aus `GET /documents` geladen.
 
 ```powershell
 cd frontend
 npm install
 npm run dev
+```
+
+App:
+
+```text
+http://127.0.0.1:5173
 ```
 
 ## Tauri später starten

@@ -78,6 +78,15 @@ def query_chunks(
     return _parse_query_result(result)
 
 
+def delete_document_chunks(document_id: str, collection: Any | None = None) -> None:
+    """Loescht alle Chunks eines Dokuments aus ChromaDB."""
+    if not document_id:
+        raise AppError(400, "document_id darf nicht leer sein.")
+
+    target_collection = collection or get_vector_collection()
+    target_collection.delete(where={"document_id": document_id})
+
+
 def _validate_chunks_and_embeddings(chunks: list[TextChunk], embeddings: list[list[float]]) -> None:
     if not chunks:
         raise AppError(400, "Es muss mindestens ein Chunk gespeichert werden.")

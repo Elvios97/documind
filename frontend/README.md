@@ -1,21 +1,45 @@
-# documind Frontend
+# Documind Frontend
 
-Lokale React-basierte Benutzeroberfläche für die PDF AI App.
-
-## Geplante Features
-
-- PDF Upload
-- Text Extraktion Anzeige
-- Chat-Interface mit PDFs
-- Versionierung mit Tauri (später)
-
-## Tech Stack
-
-- React 18+
-- TypeScript
-- Vite (Build Tool)
-- Tauri (Desktop, später)
+Lokale React/TypeScript-Oberflaeche fuer Documind.
 
 ## Status
 
-Noch nicht gestartet. Kommt nach Backend-Phase 3.
+Phase 4 gestartet:
+
+- Vite + React + TypeScript
+- PDF Upload
+- persistente Dokumentenliste aus dem Backend
+- lokales Loeschen gespeicherter Dokumente
+- RAG-Fragefeld
+- Antwortanzeige
+- Quellenanzeige
+- Lade- und Fehlerzustaende
+
+## Start
+
+Backend zuerst starten:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Frontend starten:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+App:
+
+```text
+http://127.0.0.1:5173
+```
+
+## Hinweise
+
+- Das Frontend spricht lokal mit `http://127.0.0.1:8000`.
+- Fuer Upload und RAG muessen Ollama, `llama3` und `nomic-embed-text` lokal verfuegbar sein.
+- Die Dokumentenliste wird beim Start aus `GET /documents` geladen.

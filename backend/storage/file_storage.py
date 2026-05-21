@@ -38,3 +38,17 @@ async def save_pdf_file(file: UploadFile, document_id: str) -> Path:
         stored_file.write(content)
 
     return storage_path.resolve()
+
+
+def delete_pdf_files_for_document(document_id: str) -> int:
+    """Loescht lokal gespeicherte PDF-Dateien fuer ein Dokument."""
+    if not UPLOAD_DIR.exists():
+        return 0
+
+    deleted_count = 0
+    for path in UPLOAD_DIR.glob(f"{document_id}_*"):
+        if path.is_file():
+            path.unlink(missing_ok=True)
+            deleted_count += 1
+
+    return deleted_count
