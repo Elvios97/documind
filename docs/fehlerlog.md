@@ -78,6 +78,7 @@ Die Datenordner waren für die lokale Ausführung angelegt, einzelne Laufzeitdat
 - `.gitignore` schließt Dokument-JSONs, ChromaDB-Dateien und pytest-Laufzeitdaten künftig aus.
 - Bereits verfolgte Laufzeitdateien werden aus dem Git-Index und aus der veröffentlichten Git-Historie entfernt.
 - Lokale Nutzerdaten werden vor der Bereinigung in einem ignorierten lokalen Ordner gesichert.
+- Der bereinigte `main`-Verlauf wurde kontrolliert mit `--force-with-lease` nach GitHub übertragen.
 
 ### Betroffene Dateien
 
@@ -91,7 +92,7 @@ Die Datenordner waren für die lokale Ausführung angelegt, einzelne Laufzeitdat
 - [x] Verfolgte Laufzeitdaten mit `git ls-files` identifiziert
 - [x] Neue Laufzeitdaten mit `git check-ignore` geprüft
 - [x] Lokale Dokument- und Chroma-Daten vor der Bereinigung gesichert
-- [ ] Bereinigte Git-Historie und GitHub-Stand geprüft
+- [x] Bereinigte Git-Historie und GitHub-Stand geprüft
 
 ### Learning
 

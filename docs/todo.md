@@ -2,14 +2,13 @@
 
 ## Aktuelle Priorität
 
-Phase 5 ist lokal getestet: Die Tauri-Desktop-App startet unter Windows und der PDF-/Frage-Workflow funktioniert in der Desktop-Hülle. Vor dem nächsten öffentlichen Stand müssen bereits versionierte lokale Dokument- und Chroma-Daten aus der Git-Historie entfernt werden.
+Phase 5 ist lokal getestet: Die Tauri-Desktop-App startet unter Windows und der PDF-/Frage-Workflow funktioniert in der Desktop-Hülle. Die zuvor versionierten lokalen Dokument- und Chroma-Daten wurden aus der veröffentlichten `main`-Historie entfernt.
 
 ## Nächster sinnvoller Schritt
 
-1. Bereits hochgeladene Laufzeitdaten aus der Git-Historie entfernen und den bereinigten Stand veröffentlichen.
-2. README und Portfolio-Checkliste final durchgehen.
-3. Screenshot der laufenden Desktop-App vorbereiten.
-4. Sauberen Phase-4/5-Commit erstellen und hochladen.
+1. README und Portfolio-Checkliste final durchgehen.
+2. Screenshot der laufenden Desktop-App vorbereiten.
+3. Release-Build oder dokumentierten MVP-Abschluss prüfen.
 
 ## Phase 1: Backend-Grundsystem
 
@@ -102,7 +101,7 @@ Phase 5 ist lokal getestet: Die Tauri-Desktop-App startet unter Windows und der 
 - [ ] Screenshots oder Platzhalter ergänzen
 - [ ] Datenschutz-Hinweis schärfen
 - [x] `.gitignore` für lokale Dokument- und Chroma-Daten korrigieren
-- [ ] Bereits versionierte lokale Dokument- und Chroma-Daten aus der Git-Historie entfernen
+- [x] Bereits versionierte lokale Dokument- und Chroma-Daten aus der Git-Historie entfernen
 - [x] Roadmap aktuell halten
 - [ ] API-Doku nach jedem neuen Endpoint aktualisieren
 - [ ] Fehlerlog bei echten Problemen pflegen

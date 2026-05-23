@@ -73,9 +73,9 @@
 
 - [ ] `git status` prüfen
 - [ ] keine Secrets im Repository
-- [ ] keine lokalen PDFs committen
-- [ ] keine ChromaDB-Daten committen
-- [ ] ältere Git-Historie enthält keine lokalen Dokument- oder Chroma-Daten
+- [x] keine lokalen PDFs committen
+- [x] keine ChromaDB-Daten committen
+- [x] ältere `main`-Historie enthält keine lokalen Dokument- oder Chroma-Daten
 - [ ] keine virtuellen Umgebungen committen
 - [x] `.gitignore` prüfen
 - [ ] README final lesen
