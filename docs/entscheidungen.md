@@ -138,3 +138,16 @@ Alternativen:
 - OCR-basierte Verarbeitung
 
 OCR ist später optional, aber nicht Teil des aktuellen MVP.
+
+## Entscheidung: Tauri startet zuerst ohne Backend-Autostart
+
+Datum: 2026-05-22
+
+Der erste Tauri-Stand verpackt das React-Frontend. FastAPI und Ollama werden für Entwicklung und Tests weiterhin separat lokal gestartet.
+
+Begründung:
+
+- Der bestehende lokale Backend-Flow ist bereits getestet.
+- Ein automatischer Python-Backend-Start im Desktop-Build erhöht Packaging- und Fehlerkomplexität.
+- Die Tauri-Hülle kann so zuerst sauber geprüft werden.
+- Eine spätere Build-Strategie kann bewusst entschieden und dokumentiert werden.

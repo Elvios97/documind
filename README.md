@@ -2,7 +2,7 @@
 
 Documind ist eine lokale Desktop-first App zur Analyse von PDFs mit lokaler KI. Das Projekt ist datenschutzfreundlich aufgebaut: PDFs, extrahierte Texte, Chunks, Embeddings, ChromaDB-Daten und spaetere Chatdaten bleiben lokal auf dem Rechner.
 
-Der aktuelle Stand enthaelt ein Python/FastAPI-Backend mit PDF-Upload, Textextraktion, lokaler JSON-Speicherung, lokaler Ollama-Anbindung und einem lokalen RAG-System mit ChromaDB.
+Der aktuelle Stand enthaelt ein Python/FastAPI-Backend mit PDF-Upload, Textextraktion, lokaler JSON-Speicherung, lokaler Ollama-Anbindung und einem lokalen RAG-System mit ChromaDB. Dazu kommt eine React-Oberflaeche fuer Upload, Dokumentenliste, Fragen, Antworten und Quellen. Die Tauri-Desktop-Huelle startet lokal unter Windows und ist fuer den MVP getestet.
 
 ## Ziele
 
@@ -26,12 +26,15 @@ Der aktuelle Stand enthaelt ein Python/FastAPI-Backend mit PDF-Upload, Textextra
 - Lokale ChromaDB unter `local_data/chroma/`
 - Einfache Frage zum gespeicherten PDF-Text ueber `POST /ask`
 - RAG-Fragen mit Quellen ueber `POST /rag/ask`
+- React UI fuer Upload, Dokumentauswahl, RAG-Fragen und Quellenanzeige
+- Dokumentdetails und lokales Loeschen ueber Backend und UI
+- Tauri-Desktop-Huelle unter `frontend/src-tauri/`, lokal unter Windows getestet
 - Gemockte Tests fuer Ollama und Vector Store
 
 Noch nicht Teil des aktuellen Stands:
 
-- Kein Frontend
-- Keine Tauri-Desktop-App
+- Kein automatischer Backend-Start aus der Tauri-App
+- Kein fertiger Release-Build der Tauri-Desktop-App
 - Keine OCR fuer gescannte PDFs
 - Keine Chat-History
 
@@ -155,8 +158,8 @@ Falls Windows den Standard-Temp-Ordner blockiert:
 - Phase 1: Backend-Grundsystem, PDF-Upload, lokale Textextraktion
 - Phase 2: Lokale Ollama-Frage-Antwort-Funktion
 - Phase 3: Lokales RAG-System mit ChromaDB und Quellenangaben
-- Phase 4: React Desktop UI
-- Phase 5: Tauri Desktop App
+- Phase 4: React Desktop UI, Grundfunktion umgesetzt
+- Phase 5: Tauri Desktop App, MVP-Desktop-Start getestet
 - Phase 6: Portfolio Polish
 
 ## Dokumentation

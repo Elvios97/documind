@@ -150,10 +150,13 @@ uploads/*
 local_data/*
 !local_data/.gitkeep
 !local_data/chroma/
+local_data/chroma/*
 !local_data/chroma/.gitkeep
 !local_data/documents/
+local_data/documents/*
 !local_data/documents/.gitkeep
 !local_data/chats/
+local_data/chats/*
 !local_data/chats/.gitkeep
 
 # OS

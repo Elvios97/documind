@@ -8,8 +8,10 @@ Diese Anleitung richtet sich zuerst an Windows und PowerShell.
 - Python 3.11 oder neuer
 - Git
 - Ollama für Windows
-- später Node.js für das Frontend
-- später Rust und Tauri-Voraussetzungen für die Desktop-App
+- Node.js für das Frontend
+- Rust für Tauri
+- Microsoft C++ Build Tools mit "Desktop development with C++" für Tauri unter Windows
+- Microsoft Edge WebView2 Runtime für Tauri unter Windows
 
 ## Python Setup
 
@@ -142,16 +144,39 @@ App:
 http://127.0.0.1:5173
 ```
 
-## Tauri später starten
+## Tauri Desktop-Hülle starten
 
-Tauri ist für Phase 5 geplant. Der genaue Ablauf wird ergänzt, sobald React und Tauri eingerichtet sind.
+Die Tauri-Grundstruktur liegt unter `frontend/src-tauri/`. Im aktuellen Phase-5-Stand startet Tauri nur die React-Oberfläche. FastAPI und Ollama werden vorher separat lokal gestartet.
 
-Geplanter Ablauf:
+Vor dem ersten Start unter Windows prüfen:
+
+- Rust ist installiert und `cargo --version` funktioniert in einer neuen PowerShell.
+- Microsoft C++ Build Tools sind installiert.
+- Microsoft Edge WebView2 Runtime ist vorhanden.
+
+Dann:
 
 ```powershell
 cd frontend
 npm run tauri dev
 ```
+
+Wenn PowerShell `npm` blockiert, kann derselbe Befehl mit `npm.cmd` ausgeführt werden:
+
+```powershell
+npm.cmd run tauri dev
+```
+
+## Tauri Build vorbereiten
+
+Der Build-Befehl ist eingerichtet:
+
+```powershell
+cd frontend
+npm run tauri build
+```
+
+Für den ersten MVP bleibt offen, wie das Python-Backend später in einem Desktop-Release gebündelt und gestartet wird. Diese Entscheidung wird erst getroffen, wenn die Tauri-Hülle stabil läuft.
 
 ## Windows-Hinweise
 
@@ -160,6 +185,7 @@ npm run tauri dev
 - Ollama muss lokal laufen, wenn `/ask` echt getestet wird.
 - Virtuelle Umgebung und lokale Daten gehören nicht in Git.
 - `backend/uploads/`, `local_data/documents/` und `local_data/chroma/` enthalten lokale Daten.
+- Tauri benötigt unter Windows Rust, C++ Build Tools und WebView2, bevor `tauri dev` oder `tauri build` vollständig laufen.
 - Wenn ChromaDB neu ergänzt wurde, Requirements erneut installieren:
 
 ```powershell

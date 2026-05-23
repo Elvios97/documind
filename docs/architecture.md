@@ -39,7 +39,7 @@ Lokales Dateisystem
 
 ## Frontend
 
-Das Frontend wird in Phase 4 mit React, TypeScript und Vite gebaut. Es ist Desktop-first geplant und soll später in Tauri laufen.
+Das Frontend ist mit React, TypeScript und Vite umgesetzt. Es ist Desktop-first aufgebaut und wird in Phase 5 in einer Tauri-Hülle gestartet.
 
 Geplante Bereiche:
 
@@ -50,6 +50,8 @@ Geplante Bereiche:
 - Antwortanzeige
 - Quellenanzeige
 - Lade- und Fehlerzustände
+
+Der erste Tauri-Stand startet das React-Frontend in der Desktop-Hülle. FastAPI und Ollama laufen dabei weiterhin separat lokal, bis eine stabile Backend-Startstrategie für Desktop-Builds entschieden ist.
 
 ## Backend
 

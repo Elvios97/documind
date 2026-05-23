@@ -14,8 +14,8 @@ Statuswerte:
 | Phase 1: Backend-Grundsystem | erledigt | PDF Upload und lokale Text-Extraktion |
 | Phase 2: Lokale Ollama-Integration | erledigt | Einfache Frage-Antwort-Funktion über PDF-Text |
 | Phase 3: Lokales RAG-System | erledigt | Relevante Textstellen suchen und als Kontext nutzen |
-| Phase 4: React Desktop UI | in Arbeit | Desktop-first Oberfläche bauen |
-| Phase 5: Tauri Desktop App | später | React UI als echte Desktop-App vorbereiten |
+| Phase 4: React Desktop UI | erledigt | Desktop-first Oberfläche bauen |
+| Phase 5: Tauri Desktop App | erledigt | React UI als echte Desktop-App vorbereiten |
 | Phase 6: Portfolio Polish | in Arbeit | Dokumentation, Tests und Präsentation schärfen |
 
 ## Phase 1: Backend-Grundsystem
@@ -67,7 +67,7 @@ Status: erledigt
 
 ## Phase 4: React Desktop UI
 
-Status: in Arbeit
+Status: erledigt
 
 - React + TypeScript + Vite
 - Desktop-first UI
@@ -84,15 +84,27 @@ Status: in Arbeit
 
 ## Phase 5: Tauri Desktop App
 
-Status: später
+Status: erledigt
 
-- Tauri einrichten
+- Tauri CLI und `src-tauri/` Grundstruktur einrichten
 - Windows als Hauptziel
-- Backend und Frontend lokal betreiben
+- Frontend in der Desktop-Hülle starten
+- FastAPI Backend in diesem ersten Stand separat lokal betreiben
 - Entwicklungsstart dokumentieren
 - Build-Prozess dokumentieren
-- Sicherheitskonfiguration prüfen
+- Sicherheitskonfiguration auf lokale Backend-Verbindung begrenzen
 - keine komplizierte Auto-Start-Logik, solange nicht stabil
+
+Getesteter Stand am 2026-05-23:
+
+- Windows-Voraussetzungen, Rust und Tauri-Umgebung sind eingerichtet.
+- `npm run tauri dev` startet Documind als lokale Desktop-App.
+- PDF- und Frage-Workflow wurden in der Desktop-Hülle manuell geprüft.
+
+Offen für einen späteren Release-Build:
+
+- Strategie für das Bündeln oder Starten des Python-Backends entscheiden.
+- Installer-/Release-Build testen.
 
 ## Phase 6: Portfolio Polish
 

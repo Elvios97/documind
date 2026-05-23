@@ -2,13 +2,14 @@
 
 ## Aktuelle Priorität
 
-Phase 4-Grundfunktion ist getestet. Dokumentliste, Details und lokales Löschen sind angebunden.
+Phase 5 ist lokal getestet: Die Tauri-Desktop-App startet unter Windows und der PDF-/Frage-Workflow funktioniert in der Desktop-Hülle. Vor dem nächsten öffentlichen Stand müssen bereits versionierte lokale Dokument- und Chroma-Daten aus der Git-Historie entfernt werden.
 
 ## Nächster sinnvoller Schritt
 
-1. Frontend einmal komplett testen: Reload, Upload, Frage, Quellen, Löschen.
-2. UI bei Bedarf glätten.
-3. Danach Phase-4-Stand committen oder hochladen.
+1. Bereits hochgeladene Laufzeitdaten aus der Git-Historie entfernen und den bereinigten Stand veröffentlichen.
+2. README und Portfolio-Checkliste final durchgehen.
+3. Screenshot der laufenden Desktop-App vorbereiten.
+4. Sauberen Phase-4/5-Commit erstellen und hochladen.
 
 ## Phase 1: Backend-Grundsystem
 
@@ -87,20 +88,23 @@ Phase 4-Grundfunktion ist getestet. Dokumentliste, Details und lokales Löschen 
 
 ## Phase 5: Tauri Desktop App
 
-- [ ] Tauri Setup prüfen
-- [ ] Windows-Entwicklungsstart dokumentieren
-- [ ] Frontend in Tauri starten
-- [ ] Backend-Startstrategie klären
-- [ ] Build-Prozess dokumentieren
-- [ ] Sicherheitskonfiguration prüfen
+- [x] Tauri Setup prüfen
+- [x] Tauri CLI und `src-tauri/` Grundstruktur einrichten
+- [x] Windows-Entwicklungsstart dokumentieren
+- [x] Frontend in Tauri starten und lokal prüfen
+- [x] Backend-Startstrategie klären
+- [x] Build-Prozess dokumentieren
+- [x] Sicherheitskonfiguration prüfen
 
 ## Phase 6: Portfolio Polish
 
 - [ ] README finalisieren
 - [ ] Screenshots oder Platzhalter ergänzen
 - [ ] Datenschutz-Hinweis schärfen
-- [ ] Roadmap aktuell halten
+- [x] `.gitignore` für lokale Dokument- und Chroma-Daten korrigieren
+- [ ] Bereits versionierte lokale Dokument- und Chroma-Daten aus der Git-Historie entfernen
+- [x] Roadmap aktuell halten
 - [ ] API-Doku nach jedem neuen Endpoint aktualisieren
 - [ ] Fehlerlog bei echten Problemen pflegen
-- [ ] Entscheidungen bei Architekturänderungen ergänzen
+- [x] Entscheidungen bei Architekturänderungen ergänzen
 - [ ] Tests vor größeren Commits ausführen

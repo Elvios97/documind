@@ -2,14 +2,14 @@
 
 ## Portfolio-Qualität
 
-- [ ] Projektziel ist in README und `docs/project-plan.md` klar beschrieben
-- [ ] MVP-Scope ist realistisch abgegrenzt
-- [ ] Nicht-Ziele sind sichtbar dokumentiert
-- [ ] Roadmap zeigt klare Phasen
-- [ ] Datenschutzprinzipien sind verständlich erklärt
-- [ ] Architektur ist mit einfacher Grafik dokumentiert
-- [ ] API-Dokumentation enthält Beispiele
-- [ ] RAG-Konzept ist nachvollziehbar erklärt
+- [x] Projektziel ist in README und `docs/project-plan.md` klar beschrieben
+- [x] MVP-Scope ist realistisch abgegrenzt
+- [x] Nicht-Ziele sind sichtbar dokumentiert
+- [x] Roadmap zeigt klare Phasen
+- [x] Datenschutzprinzipien sind verständlich erklärt
+- [x] Architektur ist mit einfacher Grafik dokumentiert
+- [x] API-Dokumentation enthält Beispiele
+- [x] RAG-Konzept ist nachvollziehbar erklärt
 - [ ] Screenshots oder Platzhalter sind vorbereitet
 - [ ] Projekt wirkt für GitHub sauber und fokussiert
 
@@ -51,23 +51,23 @@
 - [x] `docs/rag.md` gepflegt
 - [x] `docs/codex-rules.md` gepflegt
 - [x] `docs/codex-prompts.md` gepflegt
-- [ ] README bei größeren Änderungen aktualisieren
-- [ ] Entscheidungen bei Architekturänderungen ergänzen
+- [x] README bei größeren Änderungen aktualisieren
+- [x] Entscheidungen bei Architekturänderungen ergänzen
 - [ ] Fehlerlog bei echten Fehlern ergänzen
 
 ## Lokale Ausführung
 
-- [ ] Python-Version geprüft
-- [ ] virtuelle Umgebung erstellt
-- [ ] Requirements installiert
-- [ ] Backend startet mit Uvicorn
-- [ ] Swagger UI erreichbar
-- [ ] Ollama installiert
-- [ ] lokales Modell geladen
-- [ ] `/ask` mit lokalem Modell getestet
-- [ ] Tests lokal ausgeführt
-- [ ] später Frontend lokal gestartet
-- [ ] später Tauri lokal gestartet
+- [x] Python-Version geprüft
+- [x] virtuelle Umgebung erstellt
+- [x] Requirements installiert
+- [x] Backend startet mit Uvicorn
+- [x] Swagger UI erreichbar
+- [x] Ollama installiert
+- [x] lokales Modell geladen
+- [x] `/ask` mit lokalem Modell getestet
+- [x] Tests lokal ausgeführt
+- [x] Frontend lokal gestartet
+- [x] Tauri lokal gestartet
 
 ## Vor GitHub-Veröffentlichung
 
@@ -75,8 +75,9 @@
 - [ ] keine Secrets im Repository
 - [ ] keine lokalen PDFs committen
 - [ ] keine ChromaDB-Daten committen
+- [ ] ältere Git-Historie enthält keine lokalen Dokument- oder Chroma-Daten
 - [ ] keine virtuellen Umgebungen committen
-- [ ] `.gitignore` prüfen
+- [x] `.gitignore` prüfen
 - [ ] README final lesen
 - [ ] Setup-Anleitung frisch testen
 - [ ] Tests ausführen
