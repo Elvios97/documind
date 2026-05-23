@@ -34,7 +34,7 @@ Der aktuelle Stand enthaelt ein Python/FastAPI-Backend mit PDF-Upload, Textextra
 Noch nicht Teil des aktuellen Stands:
 
 - Kein automatischer Backend-Start aus der Tauri-App
-- Kein fertiger Release-Build der Tauri-Desktop-App
+- Kein automatisch gebündelter Start des FastAPI-Backends aus dem Installer
 - Keine OCR fuer gescannte PDFs
 - Keine Chat-History
 
@@ -159,7 +159,7 @@ Falls Windows den Standard-Temp-Ordner blockiert:
 - Phase 2: Lokale Ollama-Frage-Antwort-Funktion
 - Phase 3: Lokales RAG-System mit ChromaDB und Quellenangaben
 - Phase 4: React Desktop UI, Grundfunktion umgesetzt
-- Phase 5: Tauri Desktop App, MVP-Desktop-Start getestet
+- Phase 5: Tauri Desktop App, MVP-Desktop-Start und Windows-Installer-Build getestet
 - Phase 6: Portfolio Polish
 
 ## Dokumentation

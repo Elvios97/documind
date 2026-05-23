@@ -169,14 +169,23 @@ npm.cmd run tauri dev
 
 ## Tauri Build vorbereiten
 
-Der Build-Befehl ist eingerichtet:
+Der Windows-Build wurde am 2026-05-23 erfolgreich geprüft:
 
 ```powershell
 cd frontend
 npm run tauri build
 ```
 
-Für den ersten MVP bleibt offen, wie das Python-Backend später in einem Desktop-Release gebündelt und gestartet wird. Diese Entscheidung wird erst getroffen, wenn die Tauri-Hülle stabil läuft.
+Der Build erzeugt lokale Installer unter:
+
+```text
+frontend/src-tauri/target/release/bundle/msi/
+frontend/src-tauri/target/release/bundle/nsis/
+```
+
+Die Build-Ausgaben sind lokal und werden nicht in Git eingecheckt.
+
+Für den MVP startet der Installer die React/Tauri-Oberfläche. Das Python-Backend und Ollama müssen weiterhin lokal separat laufen. Für einen späteren eigenständigen Release bleibt offen, wie das Backend gebündelt und automatisch gestartet wird.
 
 ## Windows-Hinweise
 

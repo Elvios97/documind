@@ -68,6 +68,7 @@
 - [x] Tests lokal ausgeführt
 - [x] Frontend lokal gestartet
 - [x] Tauri lokal gestartet
+- [x] Tauri Windows-Installer lokal gebaut
 
 ## Vor GitHub-Veröffentlichung
 

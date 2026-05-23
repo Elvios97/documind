@@ -49,6 +49,7 @@ coverage.xml
 .pytest_cache/
 .pytest_tmp/
 backend/.pytest_tmp/
+backend/test_tmp_codex/
 *.tsbuildinfo
 
 # Translations

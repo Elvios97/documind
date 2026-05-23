@@ -100,11 +100,12 @@ Getesteter Stand am 2026-05-23:
 - Windows-Voraussetzungen, Rust und Tauri-Umgebung sind eingerichtet.
 - `npm run tauri dev` startet Documind als lokale Desktop-App.
 - PDF- und Frage-Workflow wurden in der Desktop-Hülle manuell geprüft.
+- `npm run tauri build` erzeugt lokal Windows-Installer als `.msi` und Setup-`.exe`.
 
 Offen für einen späteren Release-Build:
 
 - Strategie für das Bündeln oder Starten des Python-Backends entscheiden.
-- Installer-/Release-Build testen.
+- Eigenständigen Release mit gebündeltem oder automatisch gestartetem Backend entscheiden.
 
 ## Phase 6: Portfolio Polish
 
