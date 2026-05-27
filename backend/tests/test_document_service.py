@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import services.document_service as document_service
 from models.pdf import PDFPageText, PDFUploadResponse
 from storage.document_store import _document_path, save_document_text
@@ -19,7 +17,6 @@ def test_delete_document_removes_json_pdf_and_vector_chunks(monkeypatch, tmp_pat
         PDFUploadResponse(
             document_id="doc-delete-service",
             filename="delete.pdf",
-            storage_path=str(Path("uploads") / "delete.pdf"),
             page_count=1,
             pages=[PDFPageText(page_number=1, text="Delete me")],
             full_text="Delete me",

@@ -51,7 +51,6 @@ Response:
 {
   "document_id": "7ffdb5c4-5a42-4ee3-9aa2-47f317bdca10",
   "filename": "deiner-datei.pdf",
-  "storage_path": "C:\\...\\backend\\uploads\\7ffdb5c4_deiner-datei.pdf",
   "page_count": 2,
   "pages": [
     {
@@ -68,9 +67,12 @@ Fehlerfälle:
 - `400`: keine Datei
 - `400`: falscher Dateityp
 - `400`: leere Datei
+- `413`: PDF ist groesser als 50 MB
 - `422`: ungültige PDF
 - `422`: PDF ohne extrahierbaren Text
 - `500`: Dokumentdaten konnten nicht gespeichert werden
+
+Der interne Dateipfad der gespeicherten PDF wird nicht über die API ausgegeben.
 
 ## POST `/documents/upload`
 

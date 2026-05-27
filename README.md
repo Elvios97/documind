@@ -14,9 +14,18 @@ Der aktuelle Stand enthaelt ein Python/FastAPI-Backend mit PDF-Upload, Textextra
 - Saubere Trennung von API, Services, Storage und Modellen
 - Portfolio-tauglicher Code mit Tests und Dokumentation
 
+## Datenschutz und lokale Grenzen
+
+- PDFs, extrahierte Texte, Chunks, Embeddings und ChromaDB-Daten bleiben lokal.
+- Ollama wird nur ueber `localhost`, `127.0.0.1` oder `::1` angesprochen.
+- Externe Ollama- oder Embedding-Server werden abgelehnt.
+- Upload-Antworten geben keine lokalen Speicherpfade aus.
+- Interne Fehlerdetails und lokale Pfade werden nicht an API-Clients ausgegeben.
+- PDF-Uploads sind auf 50 MB begrenzt.
+
 ## Aktuelle Features
 
-- PDF-Upload ueber FastAPI
+- PDF-Upload ueber FastAPI mit 50-MB-Limit
 - Lokale Speicherung der PDF unter `backend/uploads/`
 - Textextraktion mit PyMuPDF
 - Lokale Speicherung des extrahierten Texts als JSON unter `local_data/documents/`
@@ -27,6 +36,7 @@ Der aktuelle Stand enthaelt ein Python/FastAPI-Backend mit PDF-Upload, Textextra
 - Einfache Frage zum gespeicherten PDF-Text ueber `POST /ask`
 - RAG-Fragen mit Quellen ueber `POST /rag/ask`
 - React UI fuer Upload, Dokumentauswahl, RAG-Fragen und Quellenanzeige
+- Portfolio-taugliche React UI mit lokalen Privacy-Hinweisen, Statuskarten und Beispiel-Fragen
 - Dokumentdetails und lokales Loeschen ueber Backend und UI
 - Tauri-Desktop-Huelle unter `frontend/src-tauri/`, lokal unter Windows getestet
 - Gemockte Tests fuer Ollama und Vector Store
@@ -152,6 +162,24 @@ Falls Windows den Standard-Temp-Ordner blockiert:
 ```powershell
 .\.venv\Scripts\python.exe -m pytest --basetemp .\test_tmp_codex -p no:cacheprovider
 ```
+
+Aktueller Teststand:
+
+```text
+45 passed
+```
+
+## Screenshot-Vorbereitung
+
+Fuer Portfolio-Screenshots wirkt die App am besten mit einem hochgeladenen Beispiel-PDF und einer beantworteten RAG-Frage.
+
+Empfohlener Ablauf:
+
+1. Backend starten.
+2. Frontend oder Tauri-App starten.
+3. Beispiel-PDF hochladen.
+4. Eine der Beispiel-Fragen in der UI anklicken.
+5. Screenshot mit Antwort, Quellen, Dokumentenliste und Backend-Status aufnehmen.
 
 ## Roadmap
 

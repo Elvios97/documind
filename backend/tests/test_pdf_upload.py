@@ -35,12 +35,14 @@ async def _run_pdf_upload_test(monkeypatch) -> None:
     result = await pdf_module.process_uploaded_pdf(upload)
 
     stored_document = load_document_text(result.document_id)
+    stored_pdf_path = Path(UPLOAD_DIR) / f"{result.document_id}_phase2.pdf"
 
-    Path(result.storage_path).unlink(missing_ok=True)
+    stored_pdf_path.unlink(missing_ok=True)
     _document_path(result.document_id).unlink(missing_ok=True)
 
     assert result.page_count == 1
     assert result.pages[0].text == "Phase 2 speichert Text lokal."
+    assert "storage_path" not in result.model_dump()
     assert stored_document.full_text == "Phase 2 speichert Text lokal."
     assert indexed_document_ids == [result.document_id]
 

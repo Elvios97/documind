@@ -4,7 +4,14 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from models.errors import AppError
-from services.ollama_service import ask_ollama
+from services.ollama_service import ask_ollama, get_ollama_base_url
+
+
+def test_get_ollama_base_url_rejects_external_server(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DOCUMIND_OLLAMA_BASE_URL", "https://external.example/api")
+
+    with pytest.raises(AppError, match="lokal"):
+        get_ollama_base_url()
 
 
 def test_ask_ollama_returns_answer_and_model(monkeypatch: pytest.MonkeyPatch) -> None:

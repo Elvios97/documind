@@ -1,5 +1,19 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, CheckCircle2, FileText, Loader2, MessageSquare, Send, Trash2, UploadCloud } from "lucide-react";
+import { DragEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Database,
+  FileText,
+  Loader2,
+  LockKeyhole,
+  MessageSquare,
+  SearchCheck,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  UploadCloud,
+} from "lucide-react";
 import {
   DocumentSummary,
   RagResponse,
@@ -14,6 +28,12 @@ import {
 type StoredUiDocument = Pick<UploadResponse, "document_id" | "filename" | "page_count"> & {
   uploadedAt: string;
 };
+
+const SUGGESTED_QUESTIONS = [
+  "Fasse das Dokument in 5 Stichpunkten zusammen.",
+  "Welche wichtigsten Entscheidungen oder Risiken stehen im Dokument?",
+  "Welche Quellenstellen belegen die Antwort?",
+];
 
 export function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -32,6 +52,10 @@ export function App() {
   const selectedDocument = useMemo(
     () => documents.find((document) => document.document_id === selectedDocumentId) ?? null,
     [documents, selectedDocumentId],
+  );
+  const totalPageCount = useMemo(
+    () => documents.reduce((sum, document) => sum + document.page_count, 0),
+    [documents],
   );
 
   useEffect(() => {
@@ -108,6 +132,11 @@ export function App() {
     }
   }
 
+  function handleDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    void handleUpload(event.dataTransfer.files?.[0] ?? null);
+  }
+
   async function handleAsk(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedDocument || !question.trim()) {
@@ -133,7 +162,7 @@ export function App() {
       return;
     }
 
-    const confirmed = window.confirm(`Dokument "${documentToDelete.filename}" lokal loeschen?`);
+    const confirmed = window.confirm(`Dokument "${documentToDelete.filename}" lokal löschen?`);
     if (!confirmed) {
       return;
     }
@@ -152,7 +181,7 @@ export function App() {
         setQuestion("");
       }
     } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : "Dokument konnte nicht geloescht werden.");
+      setError(deleteError instanceof Error ? deleteError.message : "Dokument konnte nicht gelöscht werden.");
     } finally {
       setDeletingDocumentId("");
     }
@@ -165,7 +194,7 @@ export function App() {
           <div className="brand-mark">D</div>
           <div>
             <h1>Documind</h1>
-            <p>Lokal. Privat. RAG-basiert.</p>
+            <p>Private PDF-Analyse mit lokaler KI.</p>
           </div>
         </div>
 
@@ -177,21 +206,38 @@ export function App() {
             accept="application/pdf"
             onChange={(event) => void handleUpload(event.target.files?.[0] ?? null)}
           />
+          <div className="upload-dropzone" onDragOver={(event) => event.preventDefault()} onDrop={handleDrop}>
+            <UploadCloud size={24} />
+            <strong>PDF ablegen oder auswählen</strong>
+            <span>Bis 50 MB, lokale Verarbeitung, automatische Indexierung.</span>
+          </div>
           <button className="primary-button" type="button" onClick={() => fileInputRef.current?.click()}>
             {isUploading ? <Loader2 className="spin" size={18} /> : <UploadCloud size={18} />}
             PDF hochladen
           </button>
-          <p>Upload indexiert automatisch mit ChromaDB und Ollama Embeddings.</p>
+          <p>Textextraktion, Chunks, Embeddings und ChromaDB laufen lokal.</p>
+        </section>
+
+        <section className="privacy-panel" aria-label="Datenschutz">
+          <div className="privacy-item">
+            <LockKeyhole size={16} />
+            <span>Keine Cloud, kein Login, keine Synchronisation.</span>
+          </div>
+          <div className="privacy-item">
+            <ShieldCheck size={16} />
+            <span>Ollama wird nur lokal über localhost genutzt.</span>
+          </div>
         </section>
 
         <section className="document-list" aria-label="Dokumente">
           <div className="section-title">
             <FileText size={17} />
             <span>Dokumente</span>
+            <strong>{documents.length}</strong>
           </div>
 
           {isLoadingDocuments ? (
-            <p className="empty-state">Dokumente werden geladen.</p>
+            <p className="empty-state">Dokumente werden geladen...</p>
           ) : documents.length === 0 ? (
             <p className="empty-state">Noch keine lokal gespeicherten PDFs.</p>
           ) : (
@@ -211,14 +257,14 @@ export function App() {
                   >
                     <span>{document.filename}</span>
                     <small>
-                      {document.page_count} Seiten - {document.uploadedAt}
+                      {document.page_count} Seiten · {document.uploadedAt}
                     </small>
                   </button>
                   <button
-                    aria-label={`${document.filename} loeschen`}
+                    aria-label={`${document.filename} löschen`}
                     className="delete-document-button"
                     disabled={deletingDocumentId === document.document_id}
-                    title="Loeschen"
+                    title="Löschen"
                     type="button"
                     onClick={() => void handleDelete(document.document_id)}
                   >
@@ -236,15 +282,41 @@ export function App() {
         <header className="workspace-header">
           <div>
             <p className="eyebrow">Lokales PDF-RAG</p>
-            <h2>{selectedDocument ? selectedDocument.filename : "Dokument auswaehlen"}</h2>
+            <h2>Privater PDF-Assistent</h2>
+            <p className="workspace-subtitle">
+              Stelle Fragen an lokale PDFs und erhalte Antworten mit nachvollziehbaren Quellen.
+            </p>
           </div>
           <div className={`status-pill ${backendStatus}`}>
             {backendStatus === "checking" ? <Loader2 className="spin" size={15} /> : null}
             {backendStatus === "online" ? <CheckCircle2 size={15} /> : null}
             {backendStatus === "offline" ? <AlertCircle size={15} /> : null}
-            Backend {backendStatus === "online" ? "online" : backendStatus === "offline" ? "offline" : "pruefen"}
+            Backend {backendStatus === "online" ? "online" : backendStatus === "offline" ? "offline" : "prüfen"}
           </div>
         </header>
+
+        <section className="metric-grid" aria-label="Projektstatus">
+          <article className="metric-card">
+            <Database size={18} />
+            <span>Dokumente</span>
+            <strong>{documents.length}</strong>
+          </article>
+          <article className="metric-card">
+            <FileText size={18} />
+            <span>Seiten lokal</span>
+            <strong>{totalPageCount}</strong>
+          </article>
+          <article className="metric-card">
+            <SearchCheck size={18} />
+            <span>Quellenlimit</span>
+            <strong>{topK} Stellen</strong>
+          </article>
+          <article className="metric-card">
+            <ShieldCheck size={18} />
+            <span>Datenschutz</span>
+            <strong>Lokal</strong>
+          </article>
+        </section>
 
         {error ? (
           <div className="error-banner" role="alert">
@@ -267,45 +339,74 @@ export function App() {
             </>
           ) : (
             <div className="placeholder">
-              <MessageSquare size={24} />
-              <p>Nach dem Upload kannst du eine Frage zum ausgewaehlten PDF stellen.</p>
+              <Sparkles size={26} />
+              <strong>{selectedDocument ? selectedDocument.filename : "Bereit für dein erstes PDF"}</strong>
+              <p>
+                {selectedDocument
+                  ? "Wähle eine Beispiel-Frage oder stelle eine eigene Frage. Die Antwort erscheint hier mit Quellen."
+                  : "Lade ein PDF hoch, damit Documind Text extrahiert, Chunks erstellt und lokal indexiert."}
+              </p>
             </div>
           )}
         </section>
 
-        <form className="question-bar" onSubmit={(event) => void handleAsk(event)}>
-          <input
-            aria-label="Frage"
-            disabled={!selectedDocument || isAsking}
-            placeholder={selectedDocument ? "Frage zum Dokument stellen" : "Zuerst PDF hochladen"}
-            value={question}
-            onChange={(event) => setQuestion(event.target.value)}
-          />
-          <label>
-            Top-K
+        <section className="question-panel" aria-label="Frage stellen">
+          <div className="selected-document">
+            <span>Aktives Dokument</span>
+            <strong>{selectedDocument ? selectedDocument.filename : "Noch kein PDF ausgewählt"}</strong>
+            <small>{selectedDocument ? `${selectedDocument.page_count} Seiten · lokal gespeichert` : "Upload starten, um RAG zu nutzen"}</small>
+          </div>
+
+          <div className="suggestion-row">
+            {SUGGESTED_QUESTIONS.map((suggestedQuestion) => (
+              <button
+                key={suggestedQuestion}
+                disabled={!selectedDocument || isAsking}
+                type="button"
+                onClick={() => setQuestion(suggestedQuestion)}
+              >
+                {suggestedQuestion}
+              </button>
+            ))}
+          </div>
+
+          <form className="question-bar" onSubmit={(event) => void handleAsk(event)}>
             <input
-              max={10}
-              min={1}
-              type="number"
-              value={topK}
-              onChange={(event) => setTopK(Number(event.target.value))}
+              aria-label="Frage"
+              disabled={!selectedDocument || isAsking}
+              placeholder={selectedDocument ? "Frage zum Dokument stellen" : "Zuerst PDF hochladen"}
+              value={question}
+              onChange={(event) => setQuestion(event.target.value)}
             />
-          </label>
-          <button className="icon-button" disabled={!selectedDocument || !question.trim() || isAsking} type="submit">
-            {isAsking ? <Loader2 className="spin" size={18} /> : <Send size={18} />}
-            Fragen
-          </button>
-        </form>
+            <label>
+              Kontextstellen
+              <input
+                max={10}
+                min={1}
+                aria-label="Anzahl der Kontextstellen"
+                title="Anzahl der relevantesten Textstellen, die Documind fuer die Antwort nutzt."
+                type="number"
+                value={topK}
+                onChange={(event) => setTopK(Math.min(10, Math.max(1, Number(event.target.value) || 1)))}
+              />
+            </label>
+            <button className="icon-button" disabled={!selectedDocument || !question.trim() || isAsking} type="submit">
+              {isAsking ? <Loader2 className="spin" size={18} /> : <Send size={18} />}
+              Fragen
+            </button>
+          </form>
+        </section>
 
         <section className="sources-panel">
           <div className="section-title">
             <FileText size={17} />
             <span>Quellen</span>
+            <strong>{answer?.sources.length ?? 0}</strong>
           </div>
           {answer?.sources.length ? (
             <div className="source-grid">
-              {answer.sources.map((source) => (
-                <article className="source-item" key={`${source.chunk_id}-${source.page_number}`}>
+              {answer.sources.map((source, index) => (
+                <article className="source-item" key={`${source.chunk_id}-${source.page_number}-${index}`}>
                   <div>
                     <strong>Seite {source.page_number}</strong>
                     <span>{source.filename}</span>
@@ -319,7 +420,7 @@ export function App() {
               ))}
             </div>
           ) : (
-            <p className="empty-state">Quellen erscheinen nach einer RAG-Antwort.</p>
+            <p className="empty-state">Quellen erscheinen nach einer RAG-Antwort mit Seitenbezug und Chunk-ID.</p>
           )}
         </section>
       </section>

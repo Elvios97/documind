@@ -12,8 +12,18 @@ def test_build_pdf_question_prompt_contains_safety_rules() -> None:
     assert "ausschliesslich anhand des PDF-Kontexts" in prompt
     assert "nicht im Kontext steht" in prompt
     assert "Nutze keine erfundenen Informationen" in prompt
+    assert "Antworte auf Deutsch" in prompt
     assert "Was ist das Thema?" in prompt
     assert "Dieses PDF beschreibt lokale KI." in prompt
+
+
+def test_build_pdf_question_prompt_uses_english_for_english_question() -> None:
+    prompt = build_pdf_question_prompt(
+        question="What is the topic?",
+        pdf_text="This PDF describes local AI.",
+    )
+
+    assert "Answer in English" in prompt
 
 
 def test_build_pdf_question_prompt_rejects_empty_question() -> None:

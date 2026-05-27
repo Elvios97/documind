@@ -5,7 +5,7 @@ from models.document import StoredDocument
 from models.errors import AppError
 from services.chunking_service import DEFAULT_CHUNK_OVERLAP, DEFAULT_CHUNK_SIZE, chunk_document_pages
 from services.embedding_service import embed_texts
-from services.vector_store_service import upsert_chunks
+from services.vector_store_service import delete_document_chunks, upsert_chunks
 
 
 async def index_document(
@@ -26,7 +26,15 @@ async def index_document(
         raise AppError(422, "Das Dokument enthaelt keine indexierbaren Text-Chunks.")
 
     embeddings, embedding_model = await embed_texts([chunk.text for chunk in chunks])
-    stored_count = upsert_chunks(chunks, embeddings, collection=collection)
+    try:
+        stored_count = upsert_chunks(chunks, embeddings, collection=collection)
+    except Exception:
+        # Eine teilweise Speicherung darf keinen verwaisten PDF-Text im Vector Store lassen.
+        try:
+            delete_document_chunks(document.document_id, collection=collection)
+        except Exception:
+            pass
+        raise
 
     return DocumentIndexResult(
         document_id=document.document_id,

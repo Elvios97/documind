@@ -99,13 +99,14 @@ Phase 5 ist lokal getestet: Die Tauri-Desktop-App startet unter Windows und der 
 
 ## Phase 6: Portfolio Polish
 
-- [ ] README finalisieren
-- [ ] Screenshots oder Platzhalter ergänzen
-- [ ] Datenschutz-Hinweis schärfen
+- [x] README finalisieren
+- [x] Screenshots oder Platzhalter ergänzen
+- [x] Datenschutz-Hinweis schärfen
+- [x] Screenshot-tauglichen UI-Stand vorbereiten
 - [x] `.gitignore` für lokale Dokument- und Chroma-Daten korrigieren
 - [x] Bereits versionierte lokale Dokument- und Chroma-Daten aus der Git-Historie entfernen
 - [x] Roadmap aktuell halten
 - [ ] API-Doku nach jedem neuen Endpoint aktualisieren
 - [ ] Fehlerlog bei echten Problemen pflegen
 - [x] Entscheidungen bei Architekturänderungen ergänzen
-- [ ] Tests vor größeren Commits ausführen
+- [x] Tests vor größeren Commits ausführen

@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from fastapi.testclient import TestClient
 
 import api.documents as documents_api
@@ -18,7 +16,6 @@ def test_get_documents_returns_stored_document_summaries(monkeypatch, tmp_path) 
         PDFUploadResponse(
             document_id="doc-a",
             filename="a.pdf",
-            storage_path=str(Path("uploads") / "a.pdf"),
             page_count=2,
             pages=[PDFPageText(page_number=1, text="A")],
             full_text="A",
@@ -28,7 +25,6 @@ def test_get_documents_returns_stored_document_summaries(monkeypatch, tmp_path) 
         PDFUploadResponse(
             document_id="doc-b",
             filename="b.pdf",
-            storage_path=str(Path("uploads") / "b.pdf"),
             page_count=1,
             pages=[PDFPageText(page_number=1, text="B")],
             full_text="B",
@@ -59,7 +55,6 @@ def test_get_document_by_id_returns_document_detail(monkeypatch, tmp_path) -> No
         PDFUploadResponse(
             document_id="doc-detail",
             filename="detail.pdf",
-            storage_path=str(Path("uploads") / "detail.pdf"),
             page_count=1,
             pages=[PDFPageText(page_number=1, text="Detailtext")],
             full_text="Detailtext",
@@ -87,3 +82,14 @@ def test_delete_document_by_id_returns_delete_response(monkeypatch) -> None:
 
     assert response.status_code == 200
     assert response.json() == {"document_id": "doc-delete", "deleted": True}
+
+
+def test_get_document_hides_invalid_storage_details(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("DOCUMIND_DOCUMENTS_DIR", str(tmp_path))
+    (tmp_path / "corrupt-document.json").write_text("{invalid JSON", encoding="utf-8")
+
+    response = client.get("/documents/corrupt-document")
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Dokumentdaten konnten nicht gelesen werden."
+    assert "JSON" not in response.text

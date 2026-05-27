@@ -37,7 +37,7 @@ def extract_text_from_pdf(pdf_path: Path) -> tuple[int, list[PDFPageText], str]:
     except AppError:
         raise
     except Exception as exc:
-        raise AppError(422, f"Textextraktion fehlgeschlagen: {exc}") from exc
+        raise AppError(422, "Textextraktion fehlgeschlagen. Bitte pruefe die PDF-Datei.") from exc
 
     full_text = "\n\n".join(page.text for page in pages).strip()
     if not full_text:
@@ -64,7 +64,6 @@ async def process_uploaded_pdf(file: UploadFile | None) -> PDFUploadResponse:
     upload_result = PDFUploadResponse(
         document_id=document_id,
         filename=file.filename or storage_path.name,
-        storage_path=str(storage_path),
         page_count=page_count,
         pages=pages,
         full_text=full_text,
@@ -74,7 +73,7 @@ async def process_uploaded_pdf(file: UploadFile | None) -> PDFUploadResponse:
         stored_document = save_document_text(upload_result)
     except Exception as exc:
         storage_path.unlink(missing_ok=True)
-        raise AppError(500, f"Dokumenttext konnte nicht lokal gespeichert werden: {exc}") from exc
+        raise AppError(500, "Dokumenttext konnte nicht lokal gespeichert werden.") from exc
 
     try:
         await index_document(stored_document)
@@ -83,7 +82,7 @@ async def process_uploaded_pdf(file: UploadFile | None) -> PDFUploadResponse:
         raise AppError(exc.status_code, f"Dokument konnte nicht lokal indexiert werden: {exc.detail}") from exc
     except Exception as exc:
         _cleanup_failed_upload(storage_path, document_id)
-        raise AppError(500, f"Dokument konnte nicht lokal indexiert werden: {exc}") from exc
+        raise AppError(500, "Dokument konnte nicht lokal indexiert werden.") from exc
 
     return upload_result
 

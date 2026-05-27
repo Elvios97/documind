@@ -63,7 +63,7 @@ def load_document_text(document_id: str) -> StoredDocument:
     except AppError:
         raise
     except Exception as exc:
-        raise AppError(500, f"Dokumentdaten konnten nicht gelesen werden: {exc}") from exc
+        raise AppError(500, "Dokumentdaten konnten nicht gelesen werden.") from exc
 
 
 def list_documents() -> list[DocumentSummary]:

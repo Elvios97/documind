@@ -51,3 +51,19 @@ def test_rag_ask_rejects_invalid_top_k() -> None:
     )
 
     assert response.status_code == 422
+
+
+def test_rag_ask_hides_internal_error_details(monkeypatch) -> None:
+    async def failing_answer_rag_question(document_id: str, question: str, top_k: int) -> None:
+        raise RuntimeError(r"C:\Users\schra\private\vector.db")
+
+    monkeypatch.setattr(rag_api, "answer_rag_question", failing_answer_rag_question)
+
+    response = client.post(
+        "/rag/ask",
+        json={"document_id": "doc-test", "question": "Was steht drin?", "top_k": 2},
+    )
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Interner Fehler bei der Verarbeitung der Anfrage."
+    assert "private" not in response.text

@@ -8,6 +8,7 @@ from models.errors import AppError
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 UPLOAD_DIR = BACKEND_DIR / "uploads"
+MAX_PDF_UPLOAD_BYTES = 50 * 1024 * 1024
 
 
 def _safe_filename(filename: str) -> str:
@@ -21,9 +22,12 @@ async def save_pdf_file(file: UploadFile, document_id: str) -> Path:
     """Speichert die hochgeladene PDF lokal im uploads-Ordner."""
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-    content = await file.read()
+    content = await file.read(MAX_PDF_UPLOAD_BYTES + 1)
     if not content:
         raise AppError(400, "Die hochgeladene PDF ist leer.")
+
+    if len(content) > MAX_PDF_UPLOAD_BYTES:
+        raise AppError(413, "Die PDF ist zu gross. Maximal erlaubt sind 50 MB.")
 
     # Ein PDF beginnt normalerweise mit dieser Signatur. Das faengt falsche
     # Dateien ab, selbst wenn sie versehentlich mit .pdf benannt wurden.

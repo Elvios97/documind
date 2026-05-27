@@ -61,6 +61,13 @@ def test_embed_texts_rejects_empty_input() -> None:
         asyncio.run(embed_texts(["Text", "   "]))
 
 
+def test_embed_texts_does_not_send_pdf_text_to_external_server(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DOCUMIND_OLLAMA_BASE_URL", "http://external.example:11434")
+
+    with pytest.raises(AppError, match="lokal"):
+        asyncio.run(embed_text("Privater PDF-Text"))
+
+
 def test_embed_texts_handles_missing_model(monkeypatch: pytest.MonkeyPatch) -> None:
     response = MagicMock()
     response.status_code = 404

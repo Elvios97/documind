@@ -1,5 +1,4 @@
 import asyncio
-from pathlib import Path
 
 import pytest
 
@@ -16,7 +15,6 @@ def test_answer_rag_question_returns_answer_and_sources(monkeypatch: pytest.Monk
         PDFUploadResponse(
             document_id="doc-test",
             filename="quelle.pdf",
-            storage_path=str(Path("uploads") / "quelle.pdf"),
             page_count=1,
             pages=[PDFPageText(page_number=1, text="Documind bleibt lokal.")],
             full_text="Documind bleibt lokal.",
@@ -75,7 +73,6 @@ def test_answer_rag_question_rejects_no_retrieval_results(monkeypatch: pytest.Mo
         PDFUploadResponse(
             document_id="doc-test",
             filename="quelle.pdf",
-            storage_path=str(Path("uploads") / "quelle.pdf"),
             page_count=1,
             pages=[PDFPageText(page_number=1, text="Documind bleibt lokal.")],
             full_text="Documind bleibt lokal.",

@@ -21,11 +21,29 @@ def test_build_rag_question_prompt_contains_sources_and_rules() -> None:
 
     assert "ausschliesslich anhand der gefundenen Quellen" in prompt
     assert "Erfinde keine Informationen" in prompt
+    assert "Antworte auf Deutsch" in prompt
     assert "[Quelle 1]" in prompt
     assert "Seite: 2" in prompt
     assert "doc-test-p0002-c0000" in prompt
     assert "Documind nutzt lokale Quellen." in prompt
     assert "Was nutzt Documind?" in prompt
+
+
+def test_build_rag_question_prompt_answers_english_questions_in_english() -> None:
+    chunks = [
+        RetrievedChunk(
+            document_id="doc-test",
+            chunk_id="doc-test-p0001-c0000",
+            chunk_index=0,
+            page_number=1,
+            text="Documind uses local sources.",
+            score=0.88,
+        )
+    ]
+
+    prompt = build_rag_question_prompt("What does Documind use?", chunks)
+
+    assert "Answer in English" in prompt
 
 
 def test_build_rag_question_prompt_rejects_empty_question() -> None:

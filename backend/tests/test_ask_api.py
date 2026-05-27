@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from fastapi.testclient import TestClient
 
 import api.ask as ask_module
@@ -38,7 +36,6 @@ def test_ask_returns_mocked_ollama_answer(monkeypatch, tmp_path) -> None:
         PDFUploadResponse(
             document_id=document_id,
             filename="test.pdf",
-            storage_path=str(Path("uploads") / "test.pdf"),
             page_count=1,
             pages=[PDFPageText(page_number=1, text="Documind laeuft lokal.")],
             full_text="Documind laeuft lokal.",
@@ -62,3 +59,30 @@ def test_ask_returns_mocked_ollama_answer(monkeypatch, tmp_path) -> None:
     assert data["answer"] == "Documind laeuft lokal."
     assert data["model"] == "llama3"
     assert data["used_context_length"] == len("Documind laeuft lokal.")
+
+
+def test_ask_hides_internal_error_details(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("DOCUMIND_DOCUMENTS_DIR", str(tmp_path))
+    save_document_text(
+        PDFUploadResponse(
+            document_id="doc-private-error",
+            filename="private.pdf",
+            page_count=1,
+            pages=[PDFPageText(page_number=1, text="Privater Inhalt")],
+            full_text="Privater Inhalt",
+        )
+    )
+
+    async def failing_ask_ollama(prompt: str) -> None:
+        raise RuntimeError(r"C:\Users\schra\private\document.pdf")
+
+    monkeypatch.setattr(ask_module, "ask_ollama", failing_ask_ollama)
+
+    response = client.post(
+        "/ask",
+        json={"document_id": "doc-private-error", "question": "Was steht drin?"},
+    )
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Interner Fehler bei der Verarbeitung der Anfrage."
+    assert "private" not in response.text

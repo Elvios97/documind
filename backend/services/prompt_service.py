@@ -1,3 +1,6 @@
+from services.language_service import build_language_instruction
+
+
 MAX_CONTEXT_CHARACTERS = 12000
 
 
@@ -21,6 +24,7 @@ def build_pdf_question_prompt(question: str, pdf_text: str) -> str:
         "Beantworte die Nutzerfrage ausschliesslich anhand des PDF-Kontexts.\n"
         "Wenn die Antwort nicht im Kontext steht, sage ehrlich, dass du es nicht weisst.\n"
         "Nutze keine erfundenen Informationen.\n"
+        f"{build_language_instruction(clean_question)}\n"
         "Antworte klar, knapp und verstaendlich.\n\n"
         "PDF-Kontext:\n"
         "-----\n"

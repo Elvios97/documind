@@ -1,5 +1,6 @@
 from models.chunk import RetrievedChunk
 from models.errors import AppError
+from services.language_service import build_language_instruction
 
 
 def build_rag_question_prompt(question: str, chunks: list[RetrievedChunk]) -> str:
@@ -32,6 +33,7 @@ def build_rag_question_prompt(question: str, chunks: list[RetrievedChunk]) -> st
         "Beantworte die Nutzerfrage ausschliesslich anhand der gefundenen Quellen.\n"
         "Wenn die Antwort nicht in den Quellen steht, sage ehrlich, dass du es nicht weisst.\n"
         "Erfinde keine Informationen.\n"
+        f"{build_language_instruction(clean_question)}\n"
         "Antworte klar, knapp und verstaendlich.\n"
         "Nutze Quellenhinweise wie 'Quelle 1' oder 'Seite 2', wenn es hilfreich ist.\n\n"
         "Gefundene Quellen:\n"

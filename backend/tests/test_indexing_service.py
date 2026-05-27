@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 import pytest
 
@@ -69,3 +70,27 @@ def test_index_document_rejects_document_without_chunks() -> None:
 
     with pytest.raises(AppError, match="keine indexierbaren"):
         asyncio.run(indexing_module.index_document(document))
+
+
+def test_index_document_removes_chunks_when_vector_storage_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    document = _stored_document([PDFPageText(page_number=1, text="Text mit Chunk")])
+    collection = FakeCollection()
+    deleted_document_ids: list[str] = []
+
+    async def fake_embed_texts(texts: list[str]) -> tuple[list[list[float]], str]:
+        return [[0.1, 0.2] for _ in texts], "test-embedding-model"
+
+    def failing_upsert_chunks(chunks: list[Any], embeddings: list[list[float]], collection: Any | None = None) -> int:
+        raise RuntimeError("Speichern fehlgeschlagen")
+
+    def fake_delete_document_chunks(document_id: str, collection: Any | None = None) -> None:
+        deleted_document_ids.append(document_id)
+
+    monkeypatch.setattr(indexing_module, "embed_texts", fake_embed_texts)
+    monkeypatch.setattr(indexing_module, "upsert_chunks", failing_upsert_chunks)
+    monkeypatch.setattr(indexing_module, "delete_document_chunks", fake_delete_document_chunks)
+
+    with pytest.raises(RuntimeError, match="Speichern fehlgeschlagen"):
+        asyncio.run(indexing_module.index_document(document, collection=collection))
+
+    assert deleted_document_ids == ["doc-test"]
