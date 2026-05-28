@@ -72,6 +72,15 @@ instance/
 # Sphinx documentation
 docs/_build/
 
+# Internal project notes
+docs/codex-*.md
+docs/todo.md
+docs/projekt-checkliste.md
+docs/learning-notes.md
+docs/git-workflow.md
+docs/fehlerlog.md
+docs/private/
+
 # PyBuilder
 target/
 
@@ -173,4 +182,3 @@ Thumbs.db
 /data
 /models
 *.pdf
-!docs/

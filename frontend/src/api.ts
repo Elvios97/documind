@@ -92,8 +92,14 @@ export function getDocumentPdfUrl(documentId: string, pageNumber: number): strin
   return `${API_BASE_URL}/documents/${encodeURIComponent(documentId)}/file#page=${pageNumber}`;
 }
 
-export function getDocumentSourceUrl(documentId: string, pageNumber: number): string {
-  return `${API_BASE_URL}/documents/${encodeURIComponent(documentId)}/source/${pageNumber}`;
+export function getDocumentSourceUrl(documentId: string, pageNumber: number, highlight?: string): string {
+  const url = new URL(`${API_BASE_URL}/documents/${encodeURIComponent(documentId)}/source/${pageNumber}`);
+
+  if (highlight?.trim()) {
+    url.searchParams.set("highlight", highlight.trim());
+  }
+
+  return url.toString();
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {

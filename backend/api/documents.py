@@ -1,6 +1,6 @@
 from html import escape
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse, HTMLResponse
 
 from models.document import DeleteDocumentResponse, DocumentDetail, DocumentSummary
@@ -45,7 +45,11 @@ async def get_document_file(document_id: str) -> FileResponse:
 
 
 @router.get("/documents/{document_id}/source/{page_number}", response_class=HTMLResponse)
-async def get_document_source_view(document_id: str, page_number: int) -> HTMLResponse:
+async def get_document_source_view(
+    document_id: str,
+    page_number: int,
+    highlight: str | None = Query(default=None, max_length=500),
+) -> HTMLResponse:
     """Zeigt eine Quellenansicht mit PDF-Embed und extrahiertem Seitentext."""
     try:
         document = get_document(document_id)
@@ -66,6 +70,7 @@ async def get_document_source_view(document_id: str, page_number: int) -> HTMLRe
             page_count=document.page_count,
             page_text=page_text,
             pdf_url=pdf_url,
+            highlight=highlight,
         )
     )
 
@@ -85,9 +90,13 @@ def _build_source_view_html(
     page_count: int,
     page_text: str,
     pdf_url: str,
+    highlight: str | None = None,
 ) -> str:
     safe_filename = escape(filename)
-    safe_page_text = escape(page_text or "Für diese Seite wurde kein extrahierbarer Text gefunden.")
+    highlighted_page_text = _highlight_page_text(
+        page_text or "Fuer diese Seite wurde kein extrahierbarer Text gefunden.",
+        highlight,
+    )
     safe_pdf_url = escape(pdf_url, quote=True)
 
     return f"""<!doctype html>
@@ -130,8 +139,8 @@ def _build_source_view_html(
     }}
     main {{
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.65fr);
-      gap: 16px;
+      grid-template-columns: minmax(0, 1fr) 10px minmax(320px, var(--text-width, 430px));
+      gap: 0;
       min-height: 0;
       padding: 16px;
     }}
@@ -145,6 +154,23 @@ def _build_source_view_html(
     iframe {{
       width: 100%;
       height: calc(100vh - 104px);
+    }}
+    .splitter {{
+      position: relative;
+      width: 10px;
+      height: calc(100vh - 104px);
+      cursor: col-resize;
+    }}
+    .splitter::after {{
+      content: "";
+      position: absolute;
+      inset: 0 4px;
+      border-radius: 999px;
+      background: #c8d3dd;
+    }}
+    .splitter:hover::after,
+    .splitter.dragging::after {{
+      background: #1f7568;
     }}
     section {{
       height: calc(100vh - 104px);
@@ -163,9 +189,17 @@ def _build_source_view_html(
       white-space: pre-wrap;
       overflow-wrap: anywhere;
     }}
+    mark {{
+      padding: 2px 3px;
+      color: inherit;
+      border-radius: 4px;
+      background: #fff2a8;
+      box-shadow: 0 0 0 1px rgba(174, 125, 0, 0.18);
+    }}
     @media (max-width: 980px) {{
-      main {{ grid-template-columns: 1fr; }}
+      main {{ grid-template-columns: 1fr; gap: 12px; }}
       iframe, section {{ height: 72vh; }}
+      .splitter {{ display: none; }}
     }}
   </style>
 </head>
@@ -180,11 +214,107 @@ def _build_source_view_html(
     </header>
     <main>
       <iframe src="{safe_pdf_url}" title="PDF Seite {page_number}"></iframe>
+      <div aria-hidden="true" class="splitter"></div>
       <section>
         <h2>Extrahierter Text dieser Seite</h2>
-        <pre>{safe_page_text}</pre>
+        <pre>{highlighted_page_text}</pre>
       </section>
     </main>
   </div>
+  <script>
+    const splitter = document.querySelector(".splitter");
+    const main = document.querySelector("main");
+    let isDragging = false;
+
+    document.querySelectorAll("a[target]").forEach((link) => {{
+      link.removeAttribute("target");
+      link.removeAttribute("rel");
+      link.textContent = "Nur PDF anzeigen";
+    }});
+
+    splitter?.addEventListener("pointerdown", (event) => {{
+      isDragging = true;
+      splitter.classList.add("dragging");
+      splitter.setPointerCapture(event.pointerId);
+    }});
+
+    splitter?.addEventListener("pointermove", (event) => {{
+      if (!isDragging || !main) {{
+        return;
+      }}
+
+      const bounds = main.getBoundingClientRect();
+      const textWidth = Math.min(Math.max(bounds.right - event.clientX, 320), bounds.width * 0.7);
+      main.style.setProperty("--text-width", `${{textWidth}}px`);
+    }});
+
+    splitter?.addEventListener("pointerup", (event) => {{
+      isDragging = false;
+      splitter.classList.remove("dragging");
+      splitter.releasePointerCapture(event.pointerId);
+    }});
+
+    document.querySelector("mark")?.scrollIntoView({{ block: "center", inline: "nearest" }});
+  </script>
 </body>
 </html>"""
+
+
+def _highlight_page_text(page_text: str, highlight: str | None) -> str:
+    if not highlight:
+        return escape(page_text)
+
+    normalized_highlight = " ".join(highlight.split()).removesuffix("...")
+    if len(normalized_highlight) < 12:
+        return escape(page_text)
+
+    match = _find_fuzzy_text_match(page_text, normalized_highlight)
+    if match is None:
+        return escape(page_text)
+
+    start, end = match
+    return f"{escape(page_text[:start])}<mark>{escape(page_text[start:end])}</mark>{escape(page_text[end:])}"
+
+
+def _find_fuzzy_text_match(page_text: str, highlight: str) -> tuple[int, int] | None:
+    compact_page, page_mapping = _compact_with_mapping(page_text)
+    compact_page = compact_page.casefold()
+    compact_highlight = " ".join(highlight.split()).casefold()
+
+    match_index = compact_page.find(compact_highlight)
+    if match_index == -1:
+        compact_highlight = compact_highlight[:160].strip()
+        match_index = compact_page.find(compact_highlight)
+
+    if match_index == -1:
+        return None
+
+    end_index = match_index + len(compact_highlight) - 1
+    if match_index >= len(page_mapping) or end_index >= len(page_mapping):
+        return None
+
+    return page_mapping[match_index], page_mapping[end_index] + 1
+
+
+def _compact_with_mapping(value: str) -> tuple[str, list[int]]:
+    chars: list[str] = []
+    mapping: list[int] = []
+    previous_was_space = True
+
+    for index, char in enumerate(value):
+        if char.isspace():
+            if not previous_was_space:
+                chars.append(" ")
+                mapping.append(index)
+            previous_was_space = True
+            continue
+
+        chars.append(char)
+        mapping.append(index)
+        previous_was_space = False
+
+    if chars and chars[-1] == " ":
+        chars.pop()
+        mapping.pop()
+
+    return "".join(chars), mapping

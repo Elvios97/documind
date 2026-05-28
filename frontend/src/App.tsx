@@ -426,7 +426,7 @@ export function App() {
                   onClick={() =>
                     setSourceViewer({
                       title: `${source.filename} - Seite ${source.page_number}`,
-                      url: getDocumentSourceUrl(answer.document_id, source.page_number),
+                      url: getDocumentSourceUrl(answer.document_id, source.page_number, source.text_preview),
                     })
                   }
                 >

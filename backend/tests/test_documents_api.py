@@ -133,6 +133,38 @@ def test_get_document_source_view_returns_page_context(monkeypatch, tmp_path) ->
     assert "/documents/doc-source/file#page=2" in response.text
 
 
+def test_get_document_source_view_highlights_matching_text(monkeypatch, tmp_path) -> None:
+    documents_dir = tmp_path / "documents"
+    uploads_dir = tmp_path / "uploads"
+    uploads_dir.mkdir()
+    monkeypatch.setenv("DOCUMIND_DOCUMENTS_DIR", str(documents_dir))
+    monkeypatch.setattr(file_storage, "UPLOAD_DIR", uploads_dir)
+
+    save_document_text(
+        PDFUploadResponse(
+            document_id="doc-highlight",
+            filename="highlight.pdf",
+            page_count=1,
+            pages=[
+                PDFPageText(
+                    page_number=1,
+                    text="Einleitung\n\nDiese wichtige Quelle soll markiert werden.\n\nEnde",
+                ),
+            ],
+            full_text="Einleitung\n\nDiese wichtige Quelle soll markiert werden.\n\nEnde",
+        )
+    )
+    (uploads_dir / "doc-highlight_highlight.pdf").write_bytes(b"%PDF-test")
+
+    response = client.get(
+        "/documents/doc-highlight/source/1",
+        params={"highlight": "Diese wichtige Quelle soll markiert werden."},
+    )
+
+    assert response.status_code == 200
+    assert "<mark>Diese wichtige Quelle soll markiert werden.</mark>" in response.text
+
+
 def test_get_document_source_view_rejects_invalid_page(monkeypatch, tmp_path) -> None:
     documents_dir = tmp_path / "documents"
     uploads_dir = tmp_path / "uploads"
