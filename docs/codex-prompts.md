@@ -59,7 +59,7 @@ Halte die Umsetzung klein und dokumentiere Entwicklungsstart und Build-Prozess.
 Erstelle zuerst einen kurzen Plan.
 ```
 
-## Portfolio-Polish-Prompt
+## Dokumentations-Polish-Prompt
 
 ```text
 Lies docs/codex-rules.md und alle Dateien in docs/.
@@ -97,7 +97,7 @@ Funktion:
 
 ```text
 Lies README.md und docs/project-plan.md.
-Verbessere die README für ein Portfolio-Projekt.
+Verbessere die README für eine öffentliche Projektpräsentation.
 Sie soll Zweck, Features, lokalen Datenschutz, Stack, Setup, Tests und Roadmap erklären.
 Keine übertriebenen Buzzwords.
 ```

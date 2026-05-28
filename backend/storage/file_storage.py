@@ -9,6 +9,7 @@ from models.errors import AppError
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 UPLOAD_DIR = BACKEND_DIR / "uploads"
 MAX_PDF_UPLOAD_BYTES = 50 * 1024 * 1024
+DOCUMENT_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 
 
 def _safe_filename(filename: str) -> str:
@@ -46,6 +47,7 @@ async def save_pdf_file(file: UploadFile, document_id: str) -> Path:
 
 def delete_pdf_files_for_document(document_id: str) -> int:
     """Loescht lokal gespeicherte PDF-Dateien fuer ein Dokument."""
+    _validate_document_id(document_id)
     if not UPLOAD_DIR.exists():
         return 0
 
@@ -56,3 +58,21 @@ def delete_pdf_files_for_document(document_id: str) -> int:
             deleted_count += 1
 
     return deleted_count
+
+
+def get_pdf_file_for_document(document_id: str) -> Path:
+    """Liefert die lokal gespeicherte PDF-Datei fuer ein Dokument."""
+    _validate_document_id(document_id)
+    if not UPLOAD_DIR.exists():
+        raise AppError(404, "Die PDF-Datei wurde nicht gefunden.")
+
+    matching_files = sorted(path for path in UPLOAD_DIR.glob(f"{document_id}_*") if path.is_file())
+    if not matching_files:
+        raise AppError(404, "Die PDF-Datei wurde nicht gefunden.")
+
+    return matching_files[0]
+
+
+def _validate_document_id(document_id: str) -> None:
+    if not document_id or not DOCUMENT_ID_PATTERN.fullmatch(document_id):
+        raise AppError(400, "Ungueltige document_id.")

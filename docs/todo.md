@@ -6,7 +6,7 @@ Phase 5 ist lokal getestet: Die Tauri-Desktop-App startet unter Windows und der 
 
 ## Nächster sinnvoller Schritt
 
-1. README und Portfolio-Checkliste final durchgehen.
+1. README und Projekt-Checkliste final durchgehen.
 2. Screenshot der laufenden Desktop-App vorbereiten.
 3. MVP-Abschluss und GitHub-Präsentation final prüfen.
 
@@ -97,7 +97,7 @@ Phase 5 ist lokal getestet: Die Tauri-Desktop-App startet unter Windows und der 
 - [x] Windows-Installer-Build lokal erzeugen
 - [ ] Backend-Bündelung für einen späteren eigenständigen Release entscheiden
 
-## Phase 6: Portfolio Polish
+## Phase 6: Dokumentation und Release Polish
 
 - [x] README finalisieren
 - [x] Screenshots oder Platzhalter ergänzen

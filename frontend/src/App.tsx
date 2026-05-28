@@ -1,4 +1,4 @@
-import { DragEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { DragEvent, FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -20,6 +20,7 @@ import {
   UploadResponse,
   askWithRag,
   deleteDocument,
+  getDocumentSourceUrl,
   getHealth,
   listDocuments,
   uploadPdf,
@@ -335,7 +336,7 @@ export function App() {
                   <small>Modell: {answer.model}</small>
                 </div>
               </div>
-              <p className="answer-text">{answer.answer}</p>
+              <div className="answer-text">{renderAnswerContent(answer.answer)}</div>
             </>
           ) : (
             <div className="placeholder">
@@ -384,7 +385,7 @@ export function App() {
                 max={10}
                 min={1}
                 aria-label="Anzahl der Kontextstellen"
-                title="Anzahl der relevantesten Textstellen, die Documind fuer die Antwort nutzt."
+                title="Anzahl der relevantesten Textstellen, die Documind für die Antwort nutzt."
                 type="number"
                 value={topK}
                 onChange={(event) => setTopK(Math.min(10, Math.max(1, Number(event.target.value) || 1)))}
@@ -406,17 +407,20 @@ export function App() {
           {answer?.sources.length ? (
             <div className="source-grid">
               {answer.sources.map((source, index) => (
-                <article className="source-item" key={`${source.chunk_id}-${source.page_number}-${index}`}>
+                <button
+                  className="source-item"
+                  key={`${source.chunk_id}-${source.page_number}-${index}`}
+                  title={`Quelle öffnen. Interne Quelle: ${source.chunk_id}`}
+                  type="button"
+                  onClick={() => window.open(getDocumentSourceUrl(answer.document_id, source.page_number), "_blank", "noopener,noreferrer")}
+                >
                   <div>
-                    <strong>Seite {source.page_number}</strong>
+                    <strong>Quelle {index + 1} · Seite {source.page_number}</strong>
                     <span>{source.filename}</span>
                   </div>
                   <p>{source.text_preview}</p>
-                  <small>
-                    {source.chunk_id}
-                    {source.score === null ? "" : ` - Score ${source.score.toFixed(2)}`}
-                  </small>
-                </article>
+                  <small>Quelle und PDF-Seite öffnen</small>
+                </button>
               ))}
             </div>
           ) : (
@@ -446,5 +450,71 @@ function formatDocumentTime(value: string): string {
   return date.toLocaleDateString("de-DE", {
     day: "2-digit",
     month: "2-digit",
+  });
+}
+
+function renderAnswerContent(text: string): ReactNode[] {
+  const elements: ReactNode[] = [];
+  const listItems: ReactNode[] = [];
+  let activeListType: "ordered" | "unordered" | null = null;
+  let listKey = 0;
+
+  function flushList() {
+    if (!activeListType || listItems.length === 0) {
+      return;
+    }
+
+    const ListTag = activeListType === "ordered" ? "ol" : "ul";
+    elements.push(
+      <ListTag className="answer-list" key={`list-${listKey}`}>
+        {listItems.splice(0)}
+      </ListTag>,
+    );
+    activeListType = null;
+    listKey += 1;
+  }
+
+  text.split(/\r?\n/).forEach((line, index) => {
+    const numberedMatch = line.match(/^\s*\d+\.\s+(.*)$/);
+    const bulletMatch = line.match(/^\s*[-*]\s+(.*)$/);
+
+    if (!line.trim()) {
+      flushList();
+      return;
+    }
+
+    if (numberedMatch) {
+      if (activeListType !== "ordered") {
+        flushList();
+        activeListType = "ordered";
+      }
+      listItems.push(<li key={`item-${index}`}>{renderInlineMarkdown(numberedMatch[1])}</li>);
+      return;
+    }
+
+    if (bulletMatch) {
+      if (activeListType !== "unordered") {
+        flushList();
+        activeListType = "unordered";
+      }
+      listItems.push(<li key={`item-${index}`}>{renderInlineMarkdown(bulletMatch[1])}</li>);
+      return;
+    }
+
+    flushList();
+    elements.push(<p key={`paragraph-${index}`}>{renderInlineMarkdown(line.trim())}</p>);
+  });
+
+  flushList();
+  return elements;
+}
+
+function renderInlineMarkdown(text: string): ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={index}>{part.slice(2, -2)}</strong>;
+    }
+
+    return part;
   });
 }

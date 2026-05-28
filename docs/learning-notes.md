@@ -80,7 +80,7 @@ Wichtig:
 
 ## Testing
 
-Tests sind wichtig für Portfolio-Qualität und spätere Änderungen.
+Tests sind wichtig für Qualitätssicherung und spätere Änderungen.
 
 Aktuelle Testarten:
 

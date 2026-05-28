@@ -88,6 +88,14 @@ export async function askWithRag(documentId: string, question: string, topK: num
   return parseResponse<RagResponse>(response);
 }
 
+export function getDocumentPdfUrl(documentId: string, pageNumber: number): string {
+  return `${API_BASE_URL}/documents/${encodeURIComponent(documentId)}/file#page=${pageNumber}`;
+}
+
+export function getDocumentSourceUrl(documentId: string, pageNumber: number): string {
+  return `${API_BASE_URL}/documents/${encodeURIComponent(documentId)}/source/${pageNumber}`;
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
   const data = await response.json().catch(() => null);
 

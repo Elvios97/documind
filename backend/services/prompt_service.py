@@ -15,8 +15,8 @@ def build_pdf_question_prompt(question: str, pdf_text: str) -> str:
     if not clean_context:
         raise ValueError("Der PDF-Kontext darf nicht leer sein.")
 
-    # Phase 2 nutzt noch kein Chunking. Das Limit verhindert zu grosse Prompts,
-    # bis in einer spaeteren Phase ChromaDB-basiertes Retrieval hinzukommt.
+    # Der einfache /ask-Endpunkt nutzt begrenzten Volltext-Kontext. Der RAG-Endpunkt
+    # nutzt stattdessen bereits ChromaDB-Retrieval mit relevanten Chunks.
     limited_context = clean_context[:MAX_CONTEXT_CHARACTERS]
 
     return (

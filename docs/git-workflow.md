@@ -2,7 +2,7 @@
 
 ## Branch-Empfehlung
 
-Für kleine Portfolio-Projekte reicht ein einfacher Workflow:
+Für kleine Projekte reicht ein einfacher Workflow:
 
 - `main`: stabiler Stand
 - `feature/<kurzer-name>`: neue Features

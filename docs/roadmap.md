@@ -16,7 +16,7 @@ Statuswerte:
 | Phase 3: Lokales RAG-System | erledigt | Relevante Textstellen suchen und als Kontext nutzen |
 | Phase 4: React Desktop UI | erledigt | Desktop-first Oberfläche bauen |
 | Phase 5: Tauri Desktop App | erledigt | React UI als echte Desktop-App vorbereiten |
-| Phase 6: Portfolio Polish | in Arbeit | Dokumentation, Tests und Präsentation schärfen |
+| Phase 6: Dokumentation und Release Polish | in Arbeit | Dokumentation, Tests und Präsentation schärfen |
 
 ## Phase 1: Backend-Grundsystem
 
@@ -107,7 +107,7 @@ Offen für einen späteren Release-Build:
 - Strategie für das Bündeln oder Starten des Python-Backends entscheiden.
 - Eigenständigen Release mit gebündeltem oder automatisch gestartetem Backend entscheiden.
 
-## Phase 6: Portfolio Polish
+## Phase 6: Dokumentation und Release Polish
 
 Status: in Arbeit
 

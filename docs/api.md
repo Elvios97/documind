@@ -15,6 +15,8 @@ http://127.0.0.1:8000
 | `POST /documents/upload` | geplant | zukünftiger einheitlicher Upload Endpoint |
 | `GET /documents` | vorhanden | Dokumentenliste |
 | `GET /documents/{document_id}` | vorhanden | Dokumentdetails |
+| `GET /documents/{document_id}/file` | vorhanden | lokal gespeicherte PDF im Browser öffnen |
+| `GET /documents/{document_id}/source/{page_number}` | vorhanden | Quellenansicht mit PDF und extrahiertem Seitentext |
 | `DELETE /documents/{document_id}` | vorhanden | Dokument lokal löschen |
 | `POST /ask` | vorhanden | einfache Frage über gespeicherten PDF-Text |
 | `POST /rag/ask` | vorhanden | Frage über lokales RAG-System |
@@ -136,6 +138,41 @@ Fehlerfälle:
 
 - `400`: ungültige `document_id`
 - `404`: Dokument wurde nicht gefunden
+
+## GET `/documents/{document_id}/file`
+
+Status: vorhanden
+
+Öffnet die lokal gespeicherte PDF-Datei als `application/pdf`. Die UI nutzt diesen Endpoint, um Quellenkarten direkt auf die passende PDF-Seite zu öffnen.
+
+Beispiel:
+
+```text
+http://127.0.0.1:8000/documents/7ffdb5c4-5a42-4ee3-9aa2-47f317bdca10/file#page=2
+```
+
+Fehlerfälle:
+
+- `400`: ungültige `document_id`
+- `404`: Dokument oder PDF-Datei wurde nicht gefunden
+
+## GET `/documents/{document_id}/source/{page_number}`
+
+Status: vorhanden
+
+Zeigt eine lokale HTML-Quellenansicht mit eingebetteter PDF und dem extrahierten Text der jeweiligen Seite. Diese Ansicht dient als stabiler Fallback, falls der Browser-PDF-Viewer den Seitenanker `#page=` nicht zuverlässig auswertet.
+
+Beispiel:
+
+```text
+http://127.0.0.1:8000/documents/7ffdb5c4-5a42-4ee3-9aa2-47f317bdca10/source/2
+```
+
+Fehlerfälle:
+
+- `400`: ungültige `document_id`
+- `400`: ungültige Seitenzahl
+- `404`: Dokument oder PDF-Datei wurde nicht gefunden
 
 ## DELETE `/documents/{document_id}`
 

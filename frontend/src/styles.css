@@ -429,11 +429,31 @@ input:disabled {
 
 .answer-text {
   max-width: 860px;
-  margin: 0;
   color: #253142;
   line-height: 1.65;
   overflow-wrap: anywhere;
-  white-space: pre-wrap;
+}
+
+.answer-text p {
+  margin: 0 0 12px;
+}
+
+.answer-text p:last-child,
+.answer-list:last-child {
+  margin-bottom: 0;
+}
+
+.answer-list {
+  margin: 0 0 14px;
+  padding-left: 24px;
+}
+
+.answer-list li {
+  margin-bottom: 8px;
+}
+
+.answer-list li:last-child {
+  margin-bottom: 0;
 }
 
 .placeholder {
@@ -566,9 +586,18 @@ input:disabled {
   gap: 8px;
   min-height: 146px;
   padding: 12px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   border: 1px solid #d7e1e8;
   border-radius: 8px;
   background: #f8fafb;
+}
+
+.source-item:hover {
+  border-color: #98c8be;
+  background: #f1faf7;
+  transform: translateY(-1px);
 }
 
 .source-item div {
@@ -593,6 +622,8 @@ input:disabled {
 }
 
 .source-item small {
+  color: #1f7568;
+  font-weight: 800;
   overflow-wrap: anywhere;
 }
 

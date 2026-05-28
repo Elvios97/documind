@@ -90,7 +90,7 @@ Begründung:
 - Modelle laufen lokal.
 - Keine externen KI-APIs nötig.
 - Einfache lokale HTTP-API.
-- Gute Grundlage für Portfolio-Demos.
+- Gute Grundlage für lokale Demos und manuelle Tests.
 
 Alternativen:
 

@@ -1,6 +1,6 @@
 # Projekt-Checkliste
 
-## Portfolio-Qualität
+## Projektqualität
 
 - [x] Projektziel ist in README und `docs/project-plan.md` klar beschrieben
 - [x] MVP-Scope ist realistisch abgegrenzt

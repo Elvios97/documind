@@ -6,7 +6,7 @@ Documind ist eine lokale Desktop-first App zur Analyse von PDFs mit lokaler KI. 
 
 ## Ziel des Projekts
 
-Documind soll zeigen, wie eine datenschutzfreundliche PDF-Analyse mit lokalem Backend, lokaler KI und späterem lokalem RAG-System sauber umgesetzt wird. Das Projekt soll technisch nachvollziehbar, testbar und portfolio-tauglich sein.
+Documind soll zeigen, wie eine datenschutzfreundliche PDF-Analyse mit lokalem Backend, lokaler KI und lokalem RAG-System sauber umgesetzt wird. Das Projekt soll technisch nachvollziehbar, testbar und gut dokumentiert sein.
 
 ## MVP-Scope
 
@@ -51,11 +51,11 @@ Documind soll zeigen, wie eine datenschutzfreundliche PDF-Analyse mit lokalem Ba
 | 3 | Lokales RAG-System | erledigt | Relevante Textstellen statt Volltext nutzen |
 | 4 | React Desktop UI | erledigt | Bedienbare Desktop-first Oberfläche |
 | 5 | Tauri Desktop App | erledigt | React UI als Desktop-App verpacken |
-| 6 | Portfolio Polish | fortlaufend | GitHub- und Bewerbungsqualität erreichen |
+| 6 | Dokumentation und Release Polish | fortlaufend | Dokumentation, Tests und Präsentation schärfen |
 
-## Portfolio-Ziel
+## Projektziel
 
-Documind soll als realistisches Junior Backend / AI Backend Portfolio-Projekt funktionieren. Der Fokus liegt auf sauberer Architektur, lokalen KI-Flows, verständlicher Dokumentation, Tests und nachvollziehbaren technischen Entscheidungen.
+Documind soll als realistische lokale PDF-RAG-App funktionieren. Der Fokus liegt auf sauberer Architektur, lokalen KI-Flows, verständlicher Dokumentation, Tests und nachvollziehbaren technischen Entscheidungen.
 
 ## Definition of Done je Phase
 
@@ -99,7 +99,7 @@ Documind soll als realistisches Junior Backend / AI Backend Portfolio-Projekt fu
 - Frage kann über die UI gestellt werden.
 - Antwort und Quellen werden angezeigt.
 - Ladezustände und Fehler sind verständlich.
-- UI wirkt ruhig, modern und portfolio-tauglich.
+- UI wirkt ruhig, modern und professionell.
 
 ### Phase 5: Tauri Desktop App
 
@@ -110,7 +110,7 @@ Documind soll als realistisches Junior Backend / AI Backend Portfolio-Projekt fu
 - Sicherheitskonfiguration ist geprüft.
 - Offene Punkte für echten Release-Build stehen in der Roadmap.
 
-### Phase 6: Portfolio Polish
+### Phase 6: Dokumentation und Release Polish
 
 - README erklärt Zweck, Stack, Setup und Roadmap.
 - Architektur-, API-, RAG- und Setup-Dokumentation sind aktuell.

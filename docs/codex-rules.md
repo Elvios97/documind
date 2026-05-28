@@ -67,4 +67,4 @@ Bei Fehlern:
 
 ## Projektfokus
 
-Documind ist lokal, datenschutzfreundlich und portfolio-tauglich. Jede Änderung soll dieses Ziel unterstützen.
+Documind ist lokal, datenschutzfreundlich und nachvollziehbar dokumentiert. Jede Änderung soll dieses Ziel unterstützen.

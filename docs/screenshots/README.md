@@ -1,6 +1,6 @@
 # Screenshot-Notizen
 
-Dieser Ordner ist fuer Portfolio-Screenshots vorgesehen.
+Dieser Ordner ist fuer Projekt-Screenshots vorgesehen.
 
 Empfohlene Motive:
 
