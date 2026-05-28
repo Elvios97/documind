@@ -13,6 +13,7 @@ import {
   Sparkles,
   Trash2,
   UploadCloud,
+  X,
 } from "lucide-react";
 import {
   DocumentSummary,
@@ -28,6 +29,11 @@ import {
 
 type StoredUiDocument = Pick<UploadResponse, "document_id" | "filename" | "page_count"> & {
   uploadedAt: string;
+};
+
+type SourceViewer = {
+  title: string;
+  url: string;
 };
 
 const SUGGESTED_QUESTIONS = [
@@ -48,6 +54,7 @@ export function App() {
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
   const [deletingDocumentId, setDeletingDocumentId] = useState("");
   const [backendStatus, setBackendStatus] = useState<"checking" | "online" | "offline">("checking");
+  const [sourceViewer, setSourceViewer] = useState<SourceViewer | null>(null);
   const [error, setError] = useState("");
 
   const selectedDocument = useMemo(
@@ -123,6 +130,7 @@ export function App() {
       setDocuments((currentDocuments) => [uploadedDocument, ...currentDocuments]);
       setSelectedDocumentId(result.document_id);
       setAnswer(null);
+      setSourceViewer(null);
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Upload fehlgeschlagen.");
     } finally {
@@ -150,6 +158,7 @@ export function App() {
     try {
       const result = await askWithRag(selectedDocument.document_id, question.trim(), topK);
       setAnswer(result);
+      setSourceViewer(null);
     } catch (askError) {
       setError(askError instanceof Error ? askError.message : "Frage konnte nicht beantwortet werden.");
     } finally {
@@ -180,6 +189,7 @@ export function App() {
         setSelectedDocumentId(nextDocuments[0]?.document_id ?? "");
         setAnswer(null);
         setQuestion("");
+        setSourceViewer(null);
       }
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : "Dokument konnte nicht gelöscht werden.");
@@ -254,6 +264,7 @@ export function App() {
                     onClick={() => {
                       setSelectedDocumentId(document.document_id);
                       setAnswer(null);
+                      setSourceViewer(null);
                     }}
                   >
                     <span>{document.filename}</span>
@@ -412,7 +423,12 @@ export function App() {
                   key={`${source.chunk_id}-${source.page_number}-${index}`}
                   title={`Quelle öffnen. Interne Quelle: ${source.chunk_id}`}
                   type="button"
-                  onClick={() => window.open(getDocumentSourceUrl(answer.document_id, source.page_number), "_blank", "noopener,noreferrer")}
+                  onClick={() =>
+                    setSourceViewer({
+                      title: `${source.filename} - Seite ${source.page_number}`,
+                      url: getDocumentSourceUrl(answer.document_id, source.page_number),
+                    })
+                  }
                 >
                   <div>
                     <strong>Quelle {index + 1} · Seite {source.page_number}</strong>
@@ -428,6 +444,23 @@ export function App() {
           )}
         </section>
       </section>
+
+      {sourceViewer ? (
+        <div className="source-viewer-backdrop" role="presentation">
+          <section aria-label="PDF Quelle" aria-modal="true" className="source-viewer-dialog" role="dialog">
+            <header className="source-viewer-header">
+              <div>
+                <span>Quelle</span>
+                <strong>{sourceViewer.title}</strong>
+              </div>
+              <button aria-label="Quellenansicht schließen" className="source-viewer-close" type="button" onClick={() => setSourceViewer(null)}>
+                <X size={18} />
+              </button>
+            </header>
+            <iframe className="source-viewer-frame" src={sourceViewer.url} title={sourceViewer.title} />
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
