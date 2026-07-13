@@ -60,13 +60,23 @@ def query_chunks(
     query_embedding: list[float],
     top_k: int = 5,
     document_id: str | None = None,
+    document_ids: list[str] | None = None,
     collection: Any | None = None,
 ) -> list[RetrievedChunk]:
     """Sucht relevante Chunks anhand eines Query-Embeddings."""
     _validate_query_settings(query_embedding, top_k)
     target_collection = collection or get_vector_collection()
 
-    where_filter = {"document_id": document_id} if document_id else None
+    if document_id and document_ids:
+        raise AppError(400, "document_id und document_ids duerfen nicht gleichzeitig gesetzt sein.")
+    if document_ids is not None and not document_ids:
+        raise AppError(400, "document_ids darf nicht leer sein.")
+
+    where_filter = None
+    if document_ids:
+        where_filter = {"document_id": {"$in": document_ids}}
+    elif document_id:
+        where_filter = {"document_id": document_id}
     query_kwargs: dict[str, Any] = {
         "query_embeddings": [query_embedding],
         "n_results": top_k,

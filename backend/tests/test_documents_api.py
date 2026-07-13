@@ -50,6 +50,59 @@ def test_get_documents_returns_empty_list(monkeypatch, tmp_path) -> None:
     assert response.json() == []
 
 
+def test_retry_document_indexing_enqueues_document(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("DOCUMIND_DOCUMENTS_DIR", str(tmp_path))
+    save_document_text(
+        PDFUploadResponse(
+            document_id="doc-retry",
+            filename="retry.pdf",
+            page_count=1,
+            pages=[PDFPageText(page_number=1, text="Erneut indexieren")],
+            full_text="Erneut indexieren",
+            indexing_status="failed",
+        )
+    )
+    enqueued: list[str] = []
+    monkeypatch.setattr(documents_api.indexing_queue, "contains", lambda document_id: False)
+    monkeypatch.setattr(documents_api.indexing_queue, "enqueue", lambda document_id: enqueued.append(document_id) or True)
+    monkeypatch.setattr(documents_api.indexing_queue, "get_position", lambda document_id: 1)
+    monkeypatch.setattr(documents_api.indexing_queue, "is_active", lambda document_id: False)
+
+    response = client.post("/documents/doc-retry/index")
+
+    assert response.status_code == 200
+    assert response.json()["indexing_status"] == "indexing"
+    assert response.json()["indexing_queue_position"] == 1
+    assert enqueued == ["doc-retry"]
+
+
+def test_cancel_document_indexing_marks_document_cancelled(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("DOCUMIND_DOCUMENTS_DIR", str(tmp_path))
+    save_document_text(
+        PDFUploadResponse(
+            document_id="doc-cancel",
+            filename="cancel.pdf",
+            page_count=1,
+            pages=[PDFPageText(page_number=1, text="Abbrechen")],
+            full_text="Abbrechen",
+            indexing_status="indexing",
+        )
+    )
+
+    async def fake_cancel(document_id: str) -> bool:
+        return document_id == "doc-cancel"
+
+    monkeypatch.setattr(documents_api.indexing_queue, "cancel", fake_cancel)
+    monkeypatch.setattr(documents_api.indexing_queue, "get_position", lambda document_id: None)
+    monkeypatch.setattr(documents_api.indexing_queue, "is_active", lambda document_id: False)
+
+    response = client.post("/documents/doc-cancel/index/cancel")
+
+    assert response.status_code == 200
+    assert response.json()["indexing_status"] == "cancelled"
+    assert response.json()["indexing_active"] is False
+
+
 def test_get_document_by_id_returns_document_detail(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("DOCUMIND_DOCUMENTS_DIR", str(tmp_path))
     save_document_text(

@@ -65,6 +65,14 @@ python -m pytest
 
 Die Ollama-Tests sind gemockt und benötigen keinen laufenden Ollama-Server.
 
+Frontend-Tests und Produktions-Build:
+
+```powershell
+cd frontend
+npm.cmd test
+npm.cmd run build
+```
+
 ## Ollama installieren und starten
 
 Ollama für Windows installieren:
@@ -87,7 +95,7 @@ Documind nutzt standardmäßig `llama3` für Antworten.
 ollama pull llama3
 ```
 
-Für lokale Embeddings in Phase 3 nutzt Documind standardmäßig `nomic-embed-text`:
+Für lokale Embeddings nutzt Documind standardmäßig `nomic-embed-text`:
 
 ```powershell
 ollama pull nomic-embed-text
@@ -141,12 +149,12 @@ npm run dev
 App:
 
 ```text
-http://127.0.0.1:5173
+http://127.0.0.1:5174
 ```
 
 ## Tauri Desktop-Hülle starten
 
-Die Tauri-Grundstruktur liegt unter `frontend/src-tauri/`. Im aktuellen Phase-5-Stand startet Tauri nur die React-Oberfläche. FastAPI und Ollama werden vorher separat lokal gestartet.
+Die Tauri-Grundstruktur liegt unter `frontend/src-tauri/`. In der Entwicklung startet Tauri das FastAPI-Backend automatisch aus `backend/.venv`, sofern Port 8000 nicht bereits belegt ist. Ollama muss separat lokal laufen.
 
 Vor dem ersten Start unter Windows prüfen:
 
@@ -167,25 +175,32 @@ Wenn PowerShell `npm` blockiert, kann derselbe Befehl mit `npm.cmd` ausgeführt 
 npm.cmd run tauri dev
 ```
 
-## Tauri Build vorbereiten
+## Windows-Release bauen
 
-Der Windows-Build wurde am 2026-05-23 erfolgreich geprüft:
+Zuerst wird das Python-Backend als ausführbare Datei gebaut:
+
+```powershell
+.\scripts\build-backend.ps1 -InstallBuildDependencies
+```
+
+Das Ergebnis liegt unter `backend/dist/documind-backend.exe`. Anschließend kann Tauri diese Datei als Ressource in den Installer aufnehmen:
 
 ```powershell
 cd frontend
 npm run tauri build
 ```
 
-Der Build erzeugt lokale Installer unter:
+Der Tauri-Build erzeugt das lokale NSIS-Setup unter:
 
 ```text
-frontend/src-tauri/target/release/bundle/msi/
 frontend/src-tauri/target/release/bundle/nsis/
 ```
 
 Die Build-Ausgaben sind lokal und werden nicht in Git eingecheckt.
 
-Für den MVP startet der Installer die React/Tauri-Oberfläche. Das Python-Backend und Ollama müssen weiterhin lokal separat laufen. Für einen späteren eigenständigen Release bleibt offen, wie das Backend gebündelt und automatisch gestartet wird.
+Das NSIS-Setup enthält damit die React/Tauri-Oberfläche und das FastAPI-Backend. Ollama und die Modelle `llama3` und `nomic-embed-text` bleiben separate Voraussetzungen. Ein MSI-Build ist derzeit nicht Teil des unterstützten Releasepfads, da der lokale WiX-Packager beim Linken abbricht.
+
+Vor einer Veröffentlichung muss der Installer auf einem sauberen Windows-System geprüft werden. Dabei sind Installation, Backend-Autostart, Ollama-Fehlermeldung, Upload, RAG-Frage, Quellenansicht und Deinstallation zu testen.
 
 ## Windows-Hinweise
 

@@ -60,18 +60,18 @@ Alternativen:
 - Django
 - Node.js Backend
 
-## Entscheidung: React + später Tauri
+## Entscheidung: React mit Tauri
 
 Datum: 2026-05-20
 
-Das Frontend wird mit React, TypeScript und Vite geplant. Tauri folgt später für die Desktop-App.
+Das Frontend nutzt React, TypeScript und Vite. Tauri stellt die leichte Windows-Desktop-Hülle bereit.
 
 Begründung:
 
 - React ist gut für eine interaktive PDF- und Chat-Oberfläche geeignet.
 - TypeScript macht UI-Datenflüsse klarer.
 - Vite ist schnell und einfach.
-- Tauri ermöglicht später eine leichte Desktop-Hülle.
+- Tauri ermöglicht eine leichte Desktop-Hülle mit restriktiver lokaler CSP.
 
 Alternativen:
 
@@ -104,7 +104,7 @@ Externe APIs sind wegen des lokalen Projektziels ausgeschlossen.
 
 Datum: 2026-05-20
 
-Für das lokale RAG-System ist ChromaDB als lokale Vektordatenbank geplant.
+Für das lokale RAG-System wird ChromaDB als lokale Vektordatenbank verwendet.
 
 Begründung:
 
@@ -139,15 +139,15 @@ Alternativen:
 
 OCR ist später optional, aber nicht Teil des aktuellen MVP.
 
-## Entscheidung: Tauri startet zuerst ohne Backend-Autostart
+## Entscheidung: Backend-Start und Release-Paket
 
 Datum: 2026-05-22
 
-Der erste Tauri-Stand verpackt das React-Frontend. FastAPI und Ollama werden für Entwicklung und Tests weiterhin separat lokal gestartet.
+Tauri startet in der Entwicklung das FastAPI-Backend aus `backend/.venv`. Für Release-Builds wird ein mit PyInstaller gebautes `documind-backend.exe` als Ressource gebündelt. Ollama bleibt ein separat installierter lokaler Dienst.
 
 Begründung:
 
-- Der bestehende lokale Backend-Flow ist bereits getestet.
-- Ein automatischer Python-Backend-Start im Desktop-Build erhöht Packaging- und Fehlerkomplexität.
-- Die Tauri-Hülle kann so zuerst sauber geprüft werden.
-- Eine spätere Build-Strategie kann bewusst entschieden und dokumentiert werden.
+- Entwicklung und Release nutzen denselben FastAPI-Einstiegspunkt.
+- Nutzer müssen für den fertigen Installer keine Python-Umgebung einrichten.
+- Ollama wird nicht ungefragt mitgeliefert und kann unabhängig aktualisiert werden.
+- Der Installer muss vor Veröffentlichung noch auf einem sauberen Windows-System validiert werden.

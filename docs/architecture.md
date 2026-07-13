@@ -1,129 +1,75 @@
 # Architektur
 
-Documind ist als lokale Desktop-first Anwendung geplant. Im MVP laufen Backend, KI-Modell, Dokumentdaten und Vektordaten auf dem eigenen Windows-PC.
+Documind ist eine lokale Windows-Desktop-Anwendung. React läuft in einer Tauri-Hülle und kommuniziert ausschließlich über HTTP mit einem lokalen FastAPI-Backend. Dokumente, Metadaten und Vektordaten bleiben auf dem Rechner.
 
-## Architekturübersicht
+## Systemübersicht
 
 ```text
-React UI / später Tauri
+React UI / Tauri
         |
-        | HTTP lokal
+        | HTTP auf 127.0.0.1:8000
         v
 FastAPI Backend
         |
         |-- PDF-Verarbeitung mit PyMuPDF
-        |-- Dokument-Speicherung als JSON
-        |-- Ollama Service für lokale LLM-Antworten
-        |-- RAG Service für Retrieval
+        |-- Dokument-Lifecycle und JSON-Speicherung
+        |-- Chunking und Indexierung
+        |-- Ollama für Embeddings und Antworten
+        `-- ChromaDB für Retrieval
         |
         v
-Lokales Dateisystem
-        |
-        |-- backend/uploads/
-        |-- local_data/documents/
-        |-- local_data/chroma/
-        `-- local_data/chats/ später
+Lokales Dateisystem + lokaler Ollama-Dienst
 ```
 
-## Lokaler Datenfluss
+## Datenfluss
 
-1. Nutzer lädt eine PDF hoch.
-2. FastAPI speichert die PDF lokal.
-3. PyMuPDF extrahiert Text pro Seite.
-4. Dokumentdaten werden als JSON unter `local_data/documents/` gespeichert.
-5. In Phase 2 wird der begrenzte PDF-Text direkt an Ollama gesendet.
-6. In Phase 3 wird der Text in Chunks zerlegt und lokal indexiert.
-7. ChromaDB findet passende Chunks für eine Frage.
-8. Ollama beantwortet die Frage nur anhand des gefundenen Kontextes.
-9. Die API gibt Antwort und Quellen an das Frontend zurück.
+1. Die UI lädt eine PDF an `POST /api/pdf/upload`.
+2. Das Backend validiert Dateityp, Größe und PDF-Inhalt.
+3. PyMuPDF extrahiert Text und Seiteninformationen.
+4. Dokumentmetadaten und PDF werden lokal gespeichert.
+5. Die Upload-API antwortet mit dem persistenten Status `indexing`.
+6. Eine Hintergrundaufgabe zerlegt den Text in überlappende Chunks.
+7. Ollama erzeugt lokale Embeddings mit `nomic-embed-text`.
+8. ChromaDB speichert die Vektoren unter `local_data/chroma/` und setzt den Status auf `ready`.
+9. `POST /rag/ask` sucht relevante Chunks für das ausgewählte Dokument.
+10. Ollama erzeugt eine Antwort ausschließlich aus diesem Kontext.
+11. Die UI zeigt Antwort, Modell und anklickbare Quellenkarten.
 
-## Frontend
+## Backend-Schichten
 
-Das Frontend ist mit React, TypeScript und Vite umgesetzt. Es ist Desktop-first aufgebaut und wird in Phase 5 in einer Tauri-Hülle gestartet.
+- `api/`: HTTP-Routen und Übersetzung kontrollierter Fehler
+- `services/`: PDF-Verarbeitung, Chunking, Embeddings, Retrieval und RAG
+- `storage/`: PDF- und JSON-Lifecycle
+- `models/`: Pydantic-Request- und Response-Modelle
+- `tests/`: isolierte Service- und API-Tests
 
-Geplante Bereiche:
-
-- Sidebar
-- PDF Upload
-- Dokumentenliste
-- Fragefeld
-- Antwortanzeige
-- Quellenanzeige
-- Lade- und Fehlerzustände
-
-Der erste Tauri-Stand startet das React-Frontend in der Desktop-Hülle. FastAPI und Ollama laufen dabei weiterhin separat lokal, bis eine stabile Backend-Startstrategie für Desktop-Builds entschieden ist.
-
-## Backend
-
-Das Backend ist in Schichten aufgebaut:
-
-- `api/`: HTTP-Endpunkte
-- `services/`: Geschäftslogik
-- `storage/`: lokale Speicherung
-- `models/`: Pydantic-Modelle
-- `rag/`: spätere RAG-Komponenten
-- `tests/`: automatisierte Tests
-
-Diese Trennung hält API, Logik, Speicherung und Datenmodelle verständlich getrennt.
-
-## PDF-Verarbeitung
-
-PyMuPDF extrahiert:
-
-- Seitenanzahl
-- Text pro Seite
-- vollständigen Dokumenttext
-
-Fehlerfälle:
-
-- keine Datei
-- falscher Dateityp
-- leere Datei
-- ungültige PDF
-- PDF ohne extrahierbaren Text
-
-## Ollama
-
-Ollama läuft lokal unter `http://127.0.0.1:11434`. Das Modell ist konfigurierbar, standardmäßig wird `llama3` verwendet.
-
-Wichtig:
-
-- keine externen KI-APIs
-- keine Cloud
-- Tests mocken Ollama-Aufrufe
-- Fehler werden verständlich an die API zurückgegeben
-
-## RAG
-
-Phase 3 ersetzt den Volltext-Kontext durch Retrieval:
-
-- Text wird in Chunks zerlegt.
-- Chunks behalten Seiteninformationen.
-- Embeddings werden lokal erzeugt.
-- ChromaDB speichert Vektoren lokal.
-- Top-K relevante Chunks werden gefunden.
-- Ollama erhält nur diese Chunks als Kontext.
-- Antworten enthalten Quellenangaben.
-
-## ChromaDB
-
-ChromaDB wird lokal unter `local_data/chroma/` gespeichert. Dieser Ordner gehört nicht in Git. ChromaDB dient nur als lokale Vektordatenbank für die eigenen Dokumente.
+Die API enthält möglichst wenig Geschäftslogik. Externe Ollama-Aufrufe werden in Tests gemockt.
 
 ## Lokale Speicherung
 
 | Datenart | Ort |
 | --- | --- |
 | hochgeladene PDFs | `backend/uploads/` |
-| extrahierte Dokumenttexte | `local_data/documents/` |
+| Dokumentmetadaten und Text | `local_data/documents/` |
 | Vektordaten | `local_data/chroma/` |
 | spätere Chatdaten | `local_data/chats/` |
 
-## Warum keine Cloud?
+Diese Laufzeitdaten werden nicht in Git eingecheckt. Beim Löschen eines Dokuments entfernt das Backend PDF, Metadaten und zugehörige Vektordaten.
 
-Documind ist bewusst lokal gebaut:
+## Desktop-Start
 
-- PDFs können private Inhalte enthalten.
-- Lokale KI schützt Daten besser.
-- Das Projekt zeigt Datenschutzbewusstsein.
-- Keine laufenden API-Kosten.
-- Keine Abhängigkeit von fremden Servern.
+In der Entwicklung sucht Tauri nach `backend/.venv` und startet Uvicorn automatisch, sofern Port 8000 nicht bereits belegt ist. Für einen Release wird `backend/dist/documind-backend.exe` als Tauri-Ressource gebündelt. Der Prozess wird beim Schließen der Anwendung beendet.
+
+Ollama bleibt ein separat installierter lokaler Dienst.
+
+## Sicherheitsgrenzen
+
+- Ollama-Verbindungen sind auf Loopback-Adressen beschränkt.
+- Tauri-CSP erlaubt Backend-Verbindungen und Frames nur über `127.0.0.1:8000`.
+- CORS akzeptiert nur die bekannten lokalen Entwicklungs- und Tauri-Ursprünge.
+- lokale Pfade und interne Exceptions werden nicht an Clients ausgegeben.
+- Uploads sind auf PDF und 50 MB begrenzt.
+
+## Geplante Erweiterung
+
+Multi-Dokument-RAG benötigt eine Liste ausgewählter Dokument-IDs, Retrieval über mehrere Collections und eine dokumentübergreifend ausgewogene Quellenrangfolge. Die bestehende Quellenstruktur kann dafür weiterverwendet werden, weil jede Quelle bereits Dateiname, Seite und Chunk-ID enthält.

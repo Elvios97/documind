@@ -1,143 +1,58 @@
 # Roadmap
 
-Statuswerte:
+## Aktueller Stand
 
-- geplant: noch nicht begonnen
-- in Arbeit: wird aktiv umgesetzt
-- erledigt: umgesetzt und dokumentiert
-- später: bewusst nach dem MVP
+Der lokale Einzel-Dokument-RAG-Workflow ist umgesetzt:
 
-## Phasenplan
+- PDF-Upload, Validierung und Textextraktion
+- Chunking mit Seitenbezug
+- lokale Embeddings über Ollama
+- lokale ChromaDB-Indexierung
+- RAG-Antworten mit Quellen
+- React-Oberfläche und Tauri-Desktop-Hülle
+- Dokumentenverwaltung und lokale PDF-Quellenansicht
+- automatisierte Backend- und Frontend-Tests
+- CI für Tests und Frontend-Build
+- vorbereiteter Build eines gebündelten Windows-Backends
 
-| Phase | Status | Ziel |
-| --- | --- | --- |
-| Phase 1: Backend-Grundsystem | erledigt | PDF Upload und lokale Text-Extraktion |
-| Phase 2: Lokale Ollama-Integration | erledigt | Einfache Frage-Antwort-Funktion über PDF-Text |
-| Phase 3: Lokales RAG-System | erledigt | Relevante Textstellen suchen und als Kontext nutzen |
-| Phase 4: React Desktop UI | erledigt | Desktop-first Oberfläche bauen |
-| Phase 5: Tauri Desktop App | erledigt | React UI als echte Desktop-App vorbereiten |
-| Phase 6: Dokumentation und Release Polish | in Arbeit | Dokumentation, Tests und Präsentation schärfen |
+## Nächster Meilenstein: Multi-Dokument-RAG
 
-## Phase 1: Backend-Grundsystem
+Ziel ist, mehrere ausgewählte Dokumente gemeinsam abzufragen und zusammenzufassen. Dafür sind notwendig:
 
-Status: erledigt
+1. Auswahl mehrerer Dokument-IDs in API und UI
+2. Retrieval über mehrere Dokument-Collections
+3. begrenzte, ausgewogene Top-K-Auswahl über alle Dokumente
+4. eindeutige Quellenzuordnung pro Dokument und Seite
+5. Schutz vor zu großem Kontext und dominierenden Einzeldokumenten
+6. Service-, API- und UI-Tests für gemischte Treffer und fehlende Dokumente
 
-- FastAPI Backend
-- Healthcheck
-- PDF Upload Endpoint
-- lokale Speicherung im `backend/uploads/` Ordner
-- PyMuPDF für Textextraktion
-- Text pro Seite extrahieren
-- Seitenanzahl erkennen
-- Dokument-ID erzeugen
-- Dokumentdaten lokal als JSON speichern
-- Fehlerbehandlung für falschen Dateityp, leere PDF und kaputte PDF
-- pytest Tests für Upload, Text-Extraktion und zentrale Fehlerfälle
+Dieses Feature wird getrennt umgesetzt, weil es Datenmodell, Retrieval, UI und Tests gemeinsam verändert.
 
-## Phase 2: Lokale Ollama-Integration
+## Release-Polish
 
-Status: erledigt
+- [x] professionelle Haupt-README
+- [x] Architektur-, API-, RAG- und Setup-Dokumentation
+- [x] Backend- und Frontend-Tests
+- [x] GitHub-Actions-CI
+- [x] feste Frontend-Abhängigkeitsversionen
+- [x] PyInstaller-Buildpfad für `documind-backend.exe`
+- [x] Tauri-Ressourcenkonfiguration für das Backend
+- [ ] finale Screenshots oder kurzes Demo-GIF in der README einbinden
+- [ ] NSIS-Installer auf einem sauberen Windows-System testen
+- [ ] ersten GitHub Release veröffentlichen
 
-- Ollama Service
-- lokales Modell über `DOCUMIND_OLLAMA_MODEL` konfigurierbar
-- Prompt Service
-- vorhandener `POST /ask` Endpoint
-- Antwort nur anhand des PDF-Kontexts
-- Schutz gegen erfundene Antworten durch klare Prompt-Regeln
-- Fehlerbehandlung, wenn Ollama nicht läuft
-- Fehlerbehandlung, wenn Modell fehlt
-- Tests mit Mock für Ollama
+## Spätere Features
 
-## Phase 3: Lokales RAG-System
-
-Status: erledigt
-
-- Chunking Service
-- Chunk-Größe konfigurierbar
-- Chunk Overlap
-- Seitenzahlen behalten
-- lokale Embeddings
-- ChromaDB lokal unter `local_data/chroma/`
-- Vector Store Service
-- RAG Service
-- vorhandener `POST /rag/ask` Endpoint
-- Quellenangaben mit Datei, Seite und Chunk
-- Top-K Suche
-- Tests für Chunking, Retrieval, RAG-Service und Fehlerfälle
-
-## Phase 4: React Desktop UI
-
-Status: erledigt
-
-- React + TypeScript + Vite
-- Desktop-first UI
-- Sidebar
-- PDF Upload
-- Dokumentenliste
-- Fragefeld
-- Antwortanzeige
-- Quellenanzeige
-- Ladezustände
-- Fehlermeldungen
-- API Client für FastAPI Backend
-- einfache UI Tests mit Vitest optional
-
-## Phase 5: Tauri Desktop App
-
-Status: erledigt
-
-- Tauri CLI und `src-tauri/` Grundstruktur einrichten
-- Windows als Hauptziel
-- Frontend in der Desktop-Hülle starten
-- FastAPI Backend in diesem ersten Stand separat lokal betreiben
-- Entwicklungsstart dokumentieren
-- Build-Prozess dokumentieren
-- Sicherheitskonfiguration auf lokale Backend-Verbindung begrenzen
-- keine komplizierte Auto-Start-Logik, solange nicht stabil
-
-Getesteter Stand am 2026-05-23:
-
-- Windows-Voraussetzungen, Rust und Tauri-Umgebung sind eingerichtet.
-- `npm run tauri dev` startet Documind als lokale Desktop-App.
-- PDF- und Frage-Workflow wurden in der Desktop-Hülle manuell geprüft.
-- `npm run tauri build` erzeugt lokal Windows-Installer als `.msi` und Setup-`.exe`.
-
-Offen für einen späteren Release-Build:
-
-- Strategie für das Bündeln oder Starten des Python-Backends entscheiden.
-- Eigenständigen Release mit gebündeltem oder automatisch gestartetem Backend entscheiden.
-
-## Phase 6: Dokumentation und Release Polish
-
-Status: in Arbeit
-
-- professionelle README
-- Architektur-Dokumentation
-- API-Dokumentation
-- RAG-Dokumentation
-- Setup-Anleitung
-- Tests dokumentieren
-- Roadmap aktualisieren
-- Screenshots-Platzhalter
-- Datenschutz-Hinweis
-- klare Projektbeschreibung
-- gute Git-Struktur
-- `.gitignore`, `requirements.txt` und spätere `package.json` Scripts prüfen
-
-## Optionale Features nach dem MVP
-
-Status: später
-
-- mehrere PDFs gleichzeitig
-- Chat History lokal speichern
-- Dokumentenordner analysieren
-- Zusammenfassungen
-- Export von Antworten
+- OCR für gescannte PDFs
+- lokale Chat-Historie
+- Export von Antworten und Quellen
 - Modellwechsel in der UI
-- Quellen anklickbar machen
-- PDF-Vorschau
-- Dark Mode
-- lokale Profile
-- Mobile/Tablet optional
-- bessere RAG-Einstellungen
-- Vergleich mehrerer lokaler Modelle
+- Retrieval-Evaluation mit festen Testdokumenten und Fragen
+- Zusammenfassungsprofile, beispielsweise kurz, ausführlich oder risikoorientiert
+
+## Bewusste Abgrenzung
+
+- keine Cloud-Konten oder Synchronisation
+- keine externen KI-APIs
+- Ollama und Modelle bleiben separate lokale Voraussetzungen
+- Windows bleibt zunächst die primär unterstützte Desktop-Plattform

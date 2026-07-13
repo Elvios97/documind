@@ -6,6 +6,7 @@ import re
 
 from models.document import DocumentDetail, DocumentSummary, StoredDocument
 from models.errors import AppError
+from models.indexing import IndexingStatus
 from models.pdf import PDFPageText, PDFUploadResponse
 
 
@@ -42,6 +43,9 @@ def save_document_text(upload_result: PDFUploadResponse) -> StoredDocument:
         pages=upload_result.pages,
         full_text=upload_result.full_text,
         created_at=datetime.now(timezone.utc).isoformat(),
+        indexing_status=upload_result.indexing_status,
+        indexing_completed_chunks=upload_result.indexing_completed_chunks,
+        indexing_total_chunks=upload_result.indexing_total_chunks,
     )
 
     with _document_path(document.document_id).open("w", encoding="utf-8") as file:
@@ -87,6 +91,10 @@ def list_documents() -> list[DocumentSummary]:
                 filename=document.file_name,
                 page_count=document.page_count,
                 created_at=document.created_at,
+                indexing_status=document.indexing_status,
+                indexing_error=document.indexing_error,
+                indexing_completed_chunks=document.indexing_completed_chunks,
+                indexing_total_chunks=document.indexing_total_chunks,
             )
         )
 
@@ -101,6 +109,10 @@ def get_document_detail(document_id: str) -> DocumentDetail:
         filename=document.file_name,
         page_count=document.page_count,
         created_at=document.created_at,
+        indexing_status=document.indexing_status,
+        indexing_error=document.indexing_error,
+        indexing_completed_chunks=document.indexing_completed_chunks,
+        indexing_total_chunks=document.indexing_total_chunks,
         pages=document.pages,
         full_text=document.full_text,
     )
@@ -109,6 +121,45 @@ def get_document_detail(document_id: str) -> DocumentDetail:
 def delete_document_text(document_id: str) -> None:
     """Loescht gespeicherte Dokumentdaten, falls sie existieren."""
     _document_path(document_id).unlink(missing_ok=True)
+
+
+def update_document_indexing_status(
+    document_id: str,
+    status: IndexingStatus,
+    error: str | None = None,
+) -> StoredDocument:
+    """Aktualisiert den persistenten Indexierungsstatus eines Dokuments."""
+    document = load_document_text(document_id)
+    updated_document = document.model_copy(
+        update={"indexing_status": status, "indexing_error": error}
+    )
+    path = _document_path(document_id)
+    temporary_path = path.with_suffix(".tmp")
+    with temporary_path.open("w", encoding="utf-8") as file:
+        json.dump(updated_document.model_dump(), file, ensure_ascii=False, indent=2)
+    temporary_path.replace(path)
+    return updated_document
+
+
+def update_document_indexing_progress(
+    document_id: str,
+    completed_chunks: int,
+    total_chunks: int,
+) -> StoredDocument:
+    """Persistiert den Fortschritt einer laufenden Indexierung."""
+    document = load_document_text(document_id)
+    updated_document = document.model_copy(
+        update={
+            "indexing_completed_chunks": completed_chunks,
+            "indexing_total_chunks": total_chunks,
+        }
+    )
+    path = _document_path(document_id)
+    temporary_path = path.with_suffix(".tmp")
+    with temporary_path.open("w", encoding="utf-8") as file:
+        json.dump(updated_document.model_dump(), file, ensure_ascii=False, indent=2)
+    temporary_path.replace(path)
+    return updated_document
 
 
 def create_document_record(
@@ -126,4 +177,5 @@ def create_document_record(
         pages=pages,
         full_text=full_text,
         created_at=datetime.now(timezone.utc).isoformat(),
+        indexing_status="ready",
     )

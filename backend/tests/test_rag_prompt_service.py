@@ -17,12 +17,17 @@ def test_build_rag_question_prompt_contains_sources_and_rules() -> None:
         )
     ]
 
-    prompt = build_rag_question_prompt("Was nutzt Documind?", chunks)
+    prompt = build_rag_question_prompt(
+        "Was nutzt Documind?",
+        chunks,
+        document_names={"doc-test": "handbuch.pdf"},
+    )
 
     assert "ausschliesslich anhand der gefundenen Quellen" in prompt
     assert "Erfinde keine Informationen" in prompt
     assert "Antworte auf Deutsch" in prompt
     assert "[Quelle 1]" in prompt
+    assert "Dokument: handbuch.pdf" in prompt
     assert "Seite: 2" in prompt
     assert "doc-test-p0002-c0000" in prompt
     assert "Documind nutzt lokale Quellen." in prompt
@@ -54,3 +59,20 @@ def test_build_rag_question_prompt_rejects_empty_question() -> None:
 def test_build_rag_question_prompt_rejects_empty_chunks() -> None:
     with pytest.raises(AppError, match="keine relevanten"):
         build_rag_question_prompt("Was steht drin?", [])
+
+
+def test_build_rag_question_prompt_contains_compare_instruction() -> None:
+    chunk = RetrievedChunk(
+        document_id="doc-test",
+        chunk_id="chunk-1",
+        chunk_index=0,
+        page_number=1,
+        text="Belegter Inhalt.",
+        score=0.9,
+    )
+
+    prompt = build_rag_question_prompt("Was unterscheidet sich?", [chunk], mode="compare")
+
+    assert "Analysemodus: compare" in prompt
+    assert "Gemeinsamkeiten" in prompt
+    assert "Widersprueche" in prompt

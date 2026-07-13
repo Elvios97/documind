@@ -17,7 +17,7 @@ Documind soll zeigen, wie eine datenschutzfreundliche PDF-Analyse mit lokalem Ba
 - Einfache Frage-Antwort-Funktion über Ollama
 - Lokales RAG-System mit Chunking, Embeddings und ChromaDB
 - React Desktop UI
-- Tauri-Vorbereitung für Windows
+- Tauri-Desktop-App für Windows
 - Professionelle Dokumentation und Tests
 
 ## Nicht-Ziele für das MVP
@@ -40,7 +40,7 @@ Documind soll zeigen, wie eine datenschutzfreundliche PDF-Analyse mit lokalem Ba
 - Storage: lokales Dateisystem, JSON, `local_data/`
 - Frontend: React, TypeScript, Vite
 - Desktop: Tauri
-- Tests: pytest, später optional Vitest
+- Tests: pytest, Vitest und Testing Library
 
 ## Phasenübersicht
 
@@ -51,7 +51,8 @@ Documind soll zeigen, wie eine datenschutzfreundliche PDF-Analyse mit lokalem Ba
 | 3 | Lokales RAG-System | erledigt | Relevante Textstellen statt Volltext nutzen |
 | 4 | React Desktop UI | erledigt | Bedienbare Desktop-first Oberfläche |
 | 5 | Tauri Desktop App | erledigt | React UI als Desktop-App verpacken |
-| 6 | Dokumentation und Release Polish | fortlaufend | Dokumentation, Tests und Präsentation schärfen |
+| 6 | Dokumentation und Release Polish | erledigt | Dokumentation, Tests, CI und Releasepfad schärfen |
+| 7 | Multi-Dokument-RAG | geplant | Mehrere ausgewählte PDFs gemeinsam abfragen |
 
 ## Projektziel
 
@@ -108,7 +109,7 @@ Documind soll als realistische lokale PDF-RAG-App funktionieren. Der Fokus liegt
 - Frontend funktioniert in der Desktop-Hülle.
 - Entwicklungsstart und Build-Prozess sind dokumentiert.
 - Sicherheitskonfiguration ist geprüft.
-- Offene Punkte für echten Release-Build stehen in der Roadmap.
+- Das Backend kann als ausführbare Datei gebaut und als Tauri-Ressource gebündelt werden.
 
 ### Phase 6: Dokumentation und Release Polish
 
@@ -116,5 +117,13 @@ Documind soll als realistische lokale PDF-RAG-App funktionieren. Der Fokus liegt
 - Architektur-, API-, RAG- und Setup-Dokumentation sind aktuell.
 - Tests sind beschrieben.
 - Datenschutz-Hinweis ist klar.
-- Screenshots oder Platzhalter sind vorbereitet.
+- Screenshot-Hinweise und Platzhalter sind vorbereitet.
 - Projektstruktur und Git-Historie wirken professionell.
+
+### Phase 7: Multi-Dokument-RAG
+
+- Mehrere Dokumente können gezielt ausgewählt werden.
+- Retrieval verteilt Treffer nachvollziehbar über die Auswahl.
+- Quellen behalten Dokument-, Seiten- und Chunk-Bezug.
+- Kontextgrenzen und fehlende Dokumente werden kontrolliert behandelt.
+- Service-, API- und UI-Tests decken den gemeinsamen Workflow ab.

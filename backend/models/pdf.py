@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+from models.indexing import IndexingStatus
+
 
 class PDFPageText(BaseModel):
     page_number: int = Field(..., examples=[1])
@@ -12,3 +14,6 @@ class PDFUploadResponse(BaseModel):
     page_count: int = Field(..., examples=[3])
     pages: list[PDFPageText]
     full_text: str = Field(..., examples=["Gesamter extrahierter Text"])
+    indexing_status: IndexingStatus = "ready"
+    indexing_completed_chunks: int = Field(default=0, ge=0)
+    indexing_total_chunks: int = Field(default=0, ge=0)
