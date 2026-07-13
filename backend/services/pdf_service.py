@@ -8,7 +8,11 @@ from models.errors import AppError
 from models.pdf import PDFPageText, PDFUploadResponse
 from services.indexing_service import index_document
 from storage.file_storage import save_pdf_file
-from storage.document_store import delete_document_text, save_document_text
+from storage.document_store import (
+    save_document_text,
+    update_document_indexing_progress,
+    update_document_indexing_status,
+)
 
 
 def _validate_pdf_upload(file: UploadFile | None) -> None:
@@ -47,7 +51,7 @@ def extract_text_from_pdf(pdf_path: Path) -> tuple[int, list[PDFPageText], str]:
 
 
 async def process_uploaded_pdf(file: UploadFile | None) -> PDFUploadResponse:
-    """Orchestriert Validierung, lokale Speicherung und Textextraktion."""
+    """Validiert, speichert und extrahiert eine PDF vor der Hintergrundindexierung."""
     _validate_pdf_upload(file)
     assert file is not None
 
@@ -67,6 +71,7 @@ async def process_uploaded_pdf(file: UploadFile | None) -> PDFUploadResponse:
         page_count=page_count,
         pages=pages,
         full_text=full_text,
+        indexing_status="indexing",
     )
 
     try:
@@ -75,18 +80,31 @@ async def process_uploaded_pdf(file: UploadFile | None) -> PDFUploadResponse:
         storage_path.unlink(missing_ok=True)
         raise AppError(500, "Dokumenttext konnte nicht lokal gespeichert werden.") from exc
 
-    try:
-        await index_document(stored_document)
-    except AppError as exc:
-        _cleanup_failed_upload(storage_path, document_id)
-        raise AppError(exc.status_code, f"Dokument konnte nicht lokal indexiert werden: {exc.detail}") from exc
-    except Exception as exc:
-        _cleanup_failed_upload(storage_path, document_id)
-        raise AppError(500, "Dokument konnte nicht lokal indexiert werden.") from exc
-
     return upload_result
 
 
-def _cleanup_failed_upload(storage_path: Path, document_id: str) -> None:
-    storage_path.unlink(missing_ok=True)
-    delete_document_text(document_id)
+async def index_uploaded_document(document_id: str) -> None:
+    """Indexiert ein bereits gespeichertes Dokument als Hintergrundaufgabe."""
+    from storage.document_store import load_document_text
+
+    try:
+        document = load_document_text(document_id)
+        await index_document(
+            document,
+            on_progress=lambda completed, total: update_document_indexing_progress(
+                document_id, completed, total
+            ),
+        )
+        update_document_indexing_status(document_id, "ready")
+    except AppError as exc:
+        update_document_indexing_status(document_id, "failed", exc.detail)
+    except Exception:
+        try:
+            update_document_indexing_status(
+                document_id,
+                "failed",
+                "Dokument konnte nicht lokal indexiert werden.",
+            )
+        except AppError as exc:
+            if exc.status_code != 404:
+                raise

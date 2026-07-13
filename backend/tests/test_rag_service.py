@@ -50,18 +50,21 @@ def test_answer_rag_question_returns_answer_and_sources(monkeypatch: pytest.Monk
 
     response = asyncio.run(
         rag_module.answer_rag_question(
-            document_id="doc-test",
+            document_ids=["doc-test"],
             question=" Warum ist Documind lokal? ",
             top_k=3,
         )
     )
 
-    assert response.document_id == "doc-test"
+    assert response.document_ids == ["doc-test"]
     assert response.question == "Warum ist Documind lokal?"
     assert response.answer == "Documind bleibt lokal."
     assert response.model == "llama3"
+    assert response.mode == "ask"
     assert len(response.sources) == 1
     assert response.sources[0].filename == "quelle.pdf"
+    assert response.sources[0].document_id == "doc-test"
+    assert response.sources[0].source_number == 1
     assert response.sources[0].page_number == 1
     assert response.sources[0].chunk_id == "doc-test-p0001-c0000"
     assert response.sources[0].score == 0.9
@@ -89,4 +92,29 @@ def test_answer_rag_question_rejects_no_retrieval_results(monkeypatch: pytest.Mo
     monkeypatch.setattr(rag_module, "query_chunks", fake_query_chunks)
 
     with pytest.raises(AppError, match="keine relevanten"):
-        asyncio.run(rag_module.answer_rag_question("doc-test", "Was steht drin?"))
+        asyncio.run(rag_module.answer_rag_question(["doc-test"], "Was steht drin?"))
+
+
+def test_select_diverse_chunks_removes_duplicates_and_covers_documents() -> None:
+    candidates = [
+        _chunk("doc-a", "a-1", "Gleicher wiederholter Text ueber lokale sichere private Verarbeitung.", 0.99),
+        _chunk("doc-b", "b-1", "Gleicher wiederholter Text ueber lokale sichere private Verarbeitung.", 0.98),
+        _chunk("doc-a", "a-2", "Einzigartiger Abschnitt aus Dokument A.", 0.80),
+        _chunk("doc-b", "b-2", "Einzigartiger Abschnitt aus Dokument B.", 0.70),
+    ]
+
+    selected = rag_module._select_diverse_chunks(candidates, ["doc-a", "doc-b"], top_k=3)
+
+    assert [chunk.chunk_id for chunk in selected] == ["a-1", "a-2", "b-2"]
+    assert {chunk.document_id for chunk in selected} == {"doc-a", "doc-b"}
+
+
+def _chunk(document_id: str, chunk_id: str, text: str, score: float) -> RetrievedChunk:
+    return RetrievedChunk(
+        document_id=document_id,
+        chunk_id=chunk_id,
+        chunk_index=0,
+        page_number=1,
+        text=text,
+        score=score,
+    )

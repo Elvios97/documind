@@ -182,3 +182,4 @@ Thumbs.db
 /data
 /models
 *.pdf
+frontend/src-tauri/resources/documind-backend.exe

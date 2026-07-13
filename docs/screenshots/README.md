@@ -1,4 +1,9 @@
-# Screenshot-Notizen
+# Screenshots
 
-<img width="2560" height="1392" alt="Documind_Main" src="https://github.com/user-attachments/assets/f9265119-fe1f-4d68-98ac-e3c0b0fe14eb" />
-<img width="2560" height="1392" alt="PDF viewer" src="https://github.com/user-attachments/assets/35bdd225-0c22-491c-ad51-ab1fc1b06bb5" />
+Die Aufnahmen zeigen den final geprüften Documind-Stand vom 13. Juli 2026.
+
+- `documind-overview.png`: Hauptansicht mit zwei ausgewählten PDFs und Vergleichsantwort
+- `documind-sources.png`: Vergleichsmodus mit nach Dokument gruppierten Quellen
+- `documind-source-viewer.png`: geöffnete PDF-Seite mit hervorgehobener Fundstelle
+
+Alle drei Bilder sind direkt in der Haupt-`README.md` eingebunden.

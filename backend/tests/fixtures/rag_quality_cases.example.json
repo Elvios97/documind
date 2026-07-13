@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Beispiel: gemeinsame Kernaussage",
+    "document_ids": ["DOCUMENT_ID_1", "DOCUMENT_ID_2"],
+    "question": "Welche gemeinsame Kernaussage enthalten beide Dokumente?",
+    "top_k": 8,
+    "expected_document_ids": ["DOCUMENT_ID_1", "DOCUMENT_ID_2"],
+    "expected_pages": {
+      "DOCUMENT_ID_1": [1, 2],
+      "DOCUMENT_ID_2": [3]
+    }
+  }
+]

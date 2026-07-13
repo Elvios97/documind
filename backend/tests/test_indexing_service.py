@@ -33,6 +33,7 @@ def test_index_document_chunks_embeds_and_stores(monkeypatch: pytest.MonkeyPatch
     )
     captured_texts: list[str] = []
     captured_collection: FakeCollection | None = None
+    progress_updates: list[tuple[int, int]] = []
     collection = FakeCollection()
 
     async def fake_embed_texts(texts: list[str]):
@@ -48,6 +49,7 @@ def test_index_document_chunks_embeds_and_stores(monkeypatch: pytest.MonkeyPatch
 
     monkeypatch.setattr(indexing_module, "embed_texts", fake_embed_texts)
     monkeypatch.setattr(indexing_module, "upsert_chunks", fake_upsert_chunks)
+    monkeypatch.setattr(indexing_module, "delete_document_chunks", lambda document_id, collection=None: None)
 
     result = asyncio.run(
         indexing_module.index_document(
@@ -55,6 +57,8 @@ def test_index_document_chunks_embeds_and_stores(monkeypatch: pytest.MonkeyPatch
             chunk_size=3,
             chunk_overlap=0,
             collection=collection,
+            batch_size=4,
+            on_progress=lambda completed, total: progress_updates.append((completed, total)),
         )
     )
 
@@ -63,6 +67,33 @@ def test_index_document_chunks_embeds_and_stores(monkeypatch: pytest.MonkeyPatch
     assert result.document_id == "doc-test"
     assert result.chunk_count == 4
     assert result.embedding_model == "test-embedding-model"
+    assert progress_updates == [(0, 4), (4, 4)]
+
+
+def test_index_document_processes_chunks_in_batches(monkeypatch: pytest.MonkeyPatch) -> None:
+    document = _stored_document([PDFPageText(page_number=1, text="abcdefghijkl")])
+    embedded_batches: list[list[str]] = []
+    stored_batches: list[list[str]] = []
+
+    async def fake_embed_texts(texts: list[str]):
+        embedded_batches.append(texts)
+        return [[0.1, 0.2] for _ in texts], "test-embedding-model"
+
+    def fake_upsert_chunks(chunks, embeddings, collection=None):
+        stored_batches.append([chunk.text for chunk in chunks])
+        return len(chunks)
+
+    monkeypatch.setattr(indexing_module, "embed_texts", fake_embed_texts)
+    monkeypatch.setattr(indexing_module, "upsert_chunks", fake_upsert_chunks)
+    monkeypatch.setattr(indexing_module, "delete_document_chunks", lambda document_id, collection=None: None)
+
+    result = asyncio.run(indexing_module.index_document(
+        document, chunk_size=3, chunk_overlap=0, batch_size=2, collection=FakeCollection()
+    ))
+
+    assert embedded_batches == [["abc", "def"], ["ghi", "jkl"]]
+    assert stored_batches == embedded_batches
+    assert result.chunk_count == 4
 
 
 def test_index_document_rejects_document_without_chunks() -> None:
@@ -91,6 +122,6 @@ def test_index_document_removes_chunks_when_vector_storage_fails(monkeypatch: py
     monkeypatch.setattr(indexing_module, "delete_document_chunks", fake_delete_document_chunks)
 
     with pytest.raises(RuntimeError, match="Speichern fehlgeschlagen"):
-        asyncio.run(indexing_module.index_document(document, collection=collection))
+        asyncio.run(indexing_module.index_document(document, collection=collection, batch_size=1))
 
-    assert deleted_document_ids == ["doc-test"]
+    assert deleted_document_ids == ["doc-test", "doc-test"]

@@ -59,7 +59,8 @@ pub fn run() {
                 )?;
             }
 
-            match ensure_backend_running() {
+            let resource_dir = app.path().resource_dir().ok();
+            match ensure_backend_running(resource_dir) {
                 Ok(Some(child)) => {
                     app.state::<BackendProcess>().set(child);
                     log::info!("Documind backend wurde automatisch gestartet.");
@@ -80,12 +81,12 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-fn ensure_backend_running() -> Result<Option<Child>, String> {
+fn ensure_backend_running(resource_dir: Option<PathBuf>) -> Result<Option<Child>, String> {
     if is_backend_running() {
         return Ok(None);
     }
 
-    let commands = backend_commands();
+    let commands = backend_commands(resource_dir);
     if commands.is_empty() {
         return Err("kein Backend-Startkandidat gefunden".to_string());
     }
@@ -115,7 +116,7 @@ fn ensure_backend_running() -> Result<Option<Child>, String> {
     Err(errors.join("; "))
 }
 
-fn backend_commands() -> Vec<BackendCommand> {
+fn backend_commands(resource_dir: Option<PathBuf>) -> Vec<BackendCommand> {
     let mut commands = Vec::new();
 
     if let Ok(path) = env::var("DOCUMIND_BACKEND_EXE") {
@@ -141,6 +142,20 @@ fn backend_commands() -> Vec<BackendCommand> {
                     current_dir: Some(app_dir.to_path_buf()),
                 });
             }
+        }
+    }
+
+    if let Some(resource_dir) = resource_dir {
+        let bundled_backend = resource_dir
+            .join("resources")
+            .join(backend_executable_name());
+        if bundled_backend.exists() {
+            commands.push(BackendCommand {
+                label: format!("Backend-Ressource ({})", bundled_backend.display()),
+                program: bundled_backend,
+                args: Vec::new(),
+                current_dir: Some(resource_dir),
+            });
         }
     }
 

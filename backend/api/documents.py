@@ -6,7 +6,12 @@ from fastapi.responses import FileResponse, HTMLResponse
 from models.document import DeleteDocumentResponse, DocumentDetail, DocumentSummary
 from models.errors import AppError
 from services.document_service import delete_document, get_document
-from storage.document_store import list_documents
+from services.indexing_queue import indexing_queue
+from storage.document_store import (
+    list_documents,
+    update_document_indexing_progress,
+    update_document_indexing_status,
+)
 from storage.file_storage import get_pdf_file_for_document
 
 
@@ -16,14 +21,14 @@ router = APIRouter()
 @router.get("/documents", response_model=list[DocumentSummary])
 async def get_documents() -> list[DocumentSummary]:
     """Liefert lokal gespeicherte Dokumente fuer die Frontend-Sidebar."""
-    return list_documents()
+    return [_with_queue_state(document) for document in list_documents()]
 
 
 @router.get("/documents/{document_id}", response_model=DocumentDetail)
 async def get_document_by_id(document_id: str) -> DocumentDetail:
     """Liefert Detaildaten zu einem lokal gespeicherten Dokument."""
     try:
-        return get_document(document_id)
+        return _with_queue_state(get_document(document_id))
     except AppError as error:
         raise HTTPException(status_code=error.status_code, detail=error.detail) from error
 
@@ -79,9 +84,51 @@ async def get_document_source_view(
 async def delete_document_by_id(document_id: str) -> DeleteDocumentResponse:
     """Loescht ein Dokument lokal inklusive Upload und RAG-Chunks."""
     try:
+        await indexing_queue.cancel(document_id)
         return delete_document(document_id)
     except AppError as error:
         raise HTTPException(status_code=error.status_code, detail=error.detail) from error
+
+
+@router.post("/documents/{document_id}/index", response_model=DocumentDetail)
+async def retry_document_indexing(document_id: str) -> DocumentDetail:
+    """Stellt ein Dokument erneut in die lokale Indexierungsqueue."""
+    try:
+        get_document(document_id)
+        if indexing_queue.contains(document_id):
+            raise AppError(409, "Das Dokument befindet sich bereits in der Indexierungsqueue.")
+        update_document_indexing_progress(document_id, 0, 0)
+        update_document_indexing_status(document_id, "indexing")
+        indexing_queue.enqueue(document_id)
+        return _with_queue_state(get_document(document_id))
+    except AppError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail) from error
+    except RuntimeError as error:
+        update_document_indexing_status(document_id, "failed", "Indexierungsqueue ist nicht gestartet.")
+        raise HTTPException(status_code=503, detail="Indexierungsqueue ist nicht gestartet.") from error
+
+
+@router.post("/documents/{document_id}/index/cancel", response_model=DocumentDetail)
+async def cancel_document_indexing(document_id: str) -> DocumentDetail:
+    """Bricht eine aktive oder wartende Indexierung ab."""
+    try:
+        document = get_document(document_id)
+        if document.indexing_status != "indexing":
+            raise AppError(409, "Das Dokument wird aktuell nicht indexiert.")
+        await indexing_queue.cancel(document_id)
+        update_document_indexing_status(document_id, "cancelled")
+        return _with_queue_state(get_document(document_id))
+    except AppError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail) from error
+
+
+def _with_queue_state(document: DocumentSummary | DocumentDetail):
+    return document.model_copy(
+        update={
+            "indexing_queue_position": indexing_queue.get_position(document.document_id),
+            "indexing_active": indexing_queue.is_active(document.document_id),
+        }
+    )
 
 
 def _build_source_view_html(

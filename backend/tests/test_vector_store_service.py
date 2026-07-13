@@ -128,3 +128,16 @@ def test_query_chunks_rejects_invalid_settings() -> None:
 
     with pytest.raises(AppError, match="top_k"):
         query_chunks([0.1, 0.2], top_k=0, collection=FakeCollection())
+
+
+def test_query_chunks_filters_multiple_documents() -> None:
+    collection = FakeCollection(query_result={"ids": [[]], "documents": [[]], "metadatas": [[]]})
+
+    chunks = query_chunks(
+        [0.1, 0.2],
+        document_ids=["doc-a", "doc-b"],
+        collection=collection,
+    )
+
+    assert chunks == []
+    assert collection.query_payload["where"] == {"document_id": {"$in": ["doc-a", "doc-b"]}}

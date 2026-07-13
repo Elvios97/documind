@@ -12,7 +12,6 @@ http://127.0.0.1:8000
 | --- | --- | --- |
 | `GET /` | vorhanden | Healthcheck |
 | `POST /api/pdf/upload` | vorhanden | aktueller PDF Upload |
-| `POST /documents/upload` | geplant | zukünftiger einheitlicher Upload Endpoint |
 | `GET /documents` | vorhanden | Dokumentenliste |
 | `GET /documents/{document_id}` | vorhanden | Dokumentdetails |
 | `GET /documents/{document_id}/file` | vorhanden | lokal gespeicherte PDF im Browser öffnen |
@@ -40,6 +39,8 @@ Status: vorhanden
 
 Aktueller Upload-Endpunkt. Lädt eine PDF hoch, speichert sie lokal und extrahiert Text mit PyMuPDF.
 
+Die Antwort wird nach Speicherung und Textextraktion zurückgegeben. Chunking, Embeddings und ChromaDB-Indexierung laufen anschließend im Hintergrund. Der Status ist über `GET /documents` oder `GET /documents/{document_id}` sichtbar.
+
 Request:
 
 ```powershell
@@ -60,7 +61,8 @@ Response:
       "text": "Text der ersten Seite"
     }
   ],
-  "full_text": "Gesamter extrahierter Text"
+  "full_text": "Gesamter extrahierter Text",
+  "indexing_status": "indexing"
 }
 ```
 
@@ -75,23 +77,6 @@ Fehlerfälle:
 - `500`: Dokumentdaten konnten nicht gespeichert werden
 
 Der interne Dateipfad der gespeicherten PDF wird nicht über die API ausgegeben.
-
-## POST `/documents/upload`
-
-Status: geplant
-
-Zukünftiger Upload-Endpunkt mit einheitlicher Dokument-API. Kann später den aktuellen `/api/pdf/upload` Endpoint ersetzen oder ergänzen.
-
-Geplante Response:
-
-```json
-{
-  "document_id": "7ffdb5c4-5a42-4ee3-9aa2-47f317bdca10",
-  "filename": "beispiel.pdf",
-  "page_count": 5,
-  "status": "indexed"
-}
-```
 
 ## GET `/documents`
 
@@ -231,13 +216,16 @@ Fehlerfälle:
 
 Status: vorhanden
 
-Stellt eine Frage über das lokale RAG-System. Der Endpoint sucht relevante Chunks in ChromaDB und gibt Antwort plus Quellen zurück.
+Stellt eine Frage über das lokale RAG-System. Ein bis fünf bereits indexierte Dokumente können gemeinsam durchsucht werden. Die relevantesten Chunks werden dokumentübergreifend sortiert.
 
 Request:
 
 ```json
 {
-  "document_id": "7ffdb5c4-5a42-4ee3-9aa2-47f317bdca10",
+  "document_ids": [
+    "7ffdb5c4-5a42-4ee3-9aa2-47f317bdca10",
+    "a5cf26e6-ecc4-4f65-a141-5db657f93b62"
+  ],
   "question": "Welche Kernaussagen stehen im Dokument?",
   "top_k": 5
 }
@@ -247,12 +235,16 @@ Response:
 
 ```json
 {
-  "document_id": "7ffdb5c4-5a42-4ee3-9aa2-47f317bdca10",
+  "document_ids": [
+    "7ffdb5c4-5a42-4ee3-9aa2-47f317bdca10",
+    "a5cf26e6-ecc4-4f65-a141-5db657f93b62"
+  ],
   "question": "Welche Kernaussagen stehen im Dokument?",
   "answer": "Die Kernaussagen sind ...",
   "model": "llama3",
   "sources": [
     {
+      "document_id": "7ffdb5c4-5a42-4ee3-9aa2-47f317bdca10",
       "filename": "beispiel.pdf",
       "page_number": 2,
       "chunk_id": "chunk-0004",
@@ -266,7 +258,7 @@ Response:
 Fehlerfälle:
 
 - `400`: Frage ist leer
-- `400`: ungültige `document_id`
+- `400`: keine, ungültige oder mehr als fünf `document_ids`
 - `404`: Dokument oder Index wurde nicht gefunden
 - `422`: keine relevanten Chunks gefunden
 - `503`: Ollama oder lokaler Vector Store nicht erreichbar
